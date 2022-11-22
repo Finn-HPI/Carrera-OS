@@ -1,10 +1,10 @@
 <h1>Carrera OS</h1>
 
-<input id="ip" placeholder="IP" onchange="setIP()" value="http://192.168.26.110"> 
+<input id="ip" placeholder="IP" onchange="setIP()" value="http://192.168.137.25"> 
 
-<input id="inputSlider" type="range" min="0" max="10" value="0" oninput="changeInput()">
+<h2 id="speedDisplay">00</h2>
 
-<button onclick="test()">test</button>
+<input id="inputSlider" type="range" min="0" max="100" value="0" oninput="changeInput()">
 
 <script>
     var ip=document.getElementById("ip").value;
@@ -13,8 +13,12 @@
     }
     function changeInput() {
         const value = document.getElementById("inputSlider").value;
-        httpPutAsync(`${ip}?value=${value}`, null, log);
-        // httpGetAsync(`${ip}`, log);
+        document.getElementById("speedDisplay").innerHTML = value;
+        httpPostAsync(`${ip}?Speed=${value}`, log);
+    }
+
+    function test() {
+        httpGetAsync(`${ip}`, log);
     }
 
     function httpGetAsync(theUrl, callback) {
@@ -27,15 +31,25 @@
         xmlHttp.send(null);
     }
 
-    function httpPutAsync(url, body, callback) {
+    function httpPostAsync(theUrl, callback) {
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function() { 
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
                 callback(xmlHttp.responseText);
         }
-        xmlHttp.open("PUT", url, true); // true for asynchronous 
-        xmlHttp.send(body);
+        xmlHttp.open("POST", theUrl, true); // true for asynchronous 
+        xmlHttp.send(null);
     }
+
+    // function httpPutAsync(url, body, callback) {
+    //     var xmlHttp = new XMLHttpRequest();
+    //     xmlHttp.onreadystatechange = function() { 
+    //         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+    //             callback(xmlHttp.responseText);
+    //     }
+    //     xmlHttp.open("PUT", url, true); // true for asynchronous 
+    //     xmlHttp.send(body);
+    // }
 
     function log(message) {
         console.log(message);

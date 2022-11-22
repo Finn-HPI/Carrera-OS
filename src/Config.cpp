@@ -4,7 +4,7 @@ Config initialConfig {
   .calibrationSpeed = 65,
 
   .fullSpeed = 125,
-  .minSpeed = 65,
+  .minSpeed = 1,
 
   .drivenLength = 1.0,
 

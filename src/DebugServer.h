@@ -18,4 +18,9 @@ public:
   void emergencyOTA();
   void loop();
   void getHome();
+  void setSpeed();
+  void activateOTA();
+
+  void setCrossOrigin();
+  void sendCrossOriginHeader();
 };
