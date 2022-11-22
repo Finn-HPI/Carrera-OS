@@ -12,7 +12,10 @@ private:
   const char* password;
 public:
   DebugServer();
+  void setup();
+  void setupRouting();
 
   void emergencyOTA();
-
+  void loop();
+  void getHome();
 };

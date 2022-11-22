@@ -14,9 +14,5 @@ void setup()
 
 void loop()
 {
-  // Serial.print(".");
-  digitalWrite(SLED_PIN, HIGH);
-  delay(1000);
-  digitalWrite(SLED_PIN, LOW);
-  delay(1000);
+  server.loop();
 }

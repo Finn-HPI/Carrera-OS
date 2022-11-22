@@ -7,10 +7,23 @@
 #include "Config.h"
 #include "constants.h"
 
-DebugServer::DebugServer(): m_server{80}, ssid{"EagleEyePixel"}, password{"JuliandsHotspot42"} {
-  // ssid = "EagleEyePixel";
-  // password = "JuliansHotspot42";
-  // m_server{80};
+DebugServer::DebugServer(): m_server{80}, ssid{"EagleEyePixel"}, password{"JuliandsHotspot42"} {}
+
+void DebugServer::setup() {
+  setupRouting();
+}
+
+void DebugServer::getHome() {
+  String response = "<h1> Carrera Fahrzeug </h1>";
+  if (m_server.arg("Speed") != ""){ 
+    response += "<p> Speed = " + m_server.arg("Speed") + "</p>";
+  }
+  m_server.send(200, "text/html", response);
+}
+
+void DebugServer::setupRouting() {
+  m_server.on("/", HTTP_GET, std::bind(&DebugServer::getHome, this));
+  m_server.begin();
 }
 
 void DebugServer::emergencyOTA()
@@ -67,4 +80,8 @@ void DebugServer::emergencyOTA()
     ArduinoOTA.handle();
     delay(10);
   }
+}
+
+void DebugServer::loop() {
+  m_server.handleClient();
 }

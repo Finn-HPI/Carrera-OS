@@ -66,7 +66,7 @@ void initialize::power() {
 }
 
 void initialize::debugServer() {  
-  // server.setup();
+  server.setup();
   ledcWrite(SLED_PWM_CHANNEL, 255);
 }
 
