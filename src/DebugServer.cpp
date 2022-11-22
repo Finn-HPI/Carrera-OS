@@ -15,8 +15,15 @@ void DebugServer::setup() {
 
 void DebugServer::getHome() {
   String response = "<h1> Carrera Fahrzeug </h1>";
-  if (m_server.arg("Speed") != ""){ 
-    response += "<p> Speed = " + m_server.arg("Speed") + "</p>";
+  if (m_server.arg("Speed") != ""){
+    String speed = m_server.arg("Speed");
+    response += "<p> Speed = " + speed + "</p>";
+    try {
+      int speedValue = std::atoi(speed.c_str());
+    }
+    catch(...) {
+      response += "<strong> THIS IS NOT A NUMBER, IDIOT </strong>";
+    }
   }
   m_server.send(200, "text/html", response);
 }

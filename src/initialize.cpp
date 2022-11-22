@@ -69,20 +69,3 @@ void initialize::debugServer() {
   server.setup();
   ledcWrite(SLED_PWM_CHANNEL, 255);
 }
-
-
-float vin_energy_arr[2048];
-float capacitor_energy_arr[2048];
-float diffsStorage[2048];
-std::pair<int16_t, int> timingsStorage[4096];
-
-void initialize::storages() {
-  // vin_energy.setStorage(vin_energy_arr);
-  // capacitor_energy.setStorage(capacitor_energy_arr);
-  // diffs.setStorage(diffsStorage);
-}
-
-void initialize::strategy() {
-  // ::strategy.store(&NullStrategy::instance);
-  // ::strategy.load()->initialize();
-}

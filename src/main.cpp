@@ -4,7 +4,6 @@
 
 void setup()
 {
-  pinMode(SLED_PIN, OUTPUT);
   initialize::io();
   initialize::emergencyOTA();
   initialize::peripherals();

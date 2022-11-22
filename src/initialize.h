@@ -6,6 +6,4 @@ namespace initialize {
   void peripherals();
   void power();
   void debugServer();
-  void storages();
-  void strategy();
 } // initialize
