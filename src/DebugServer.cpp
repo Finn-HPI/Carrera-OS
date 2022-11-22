@@ -7,7 +7,7 @@
 #include "Config.h"
 #include "constants.h"
 
-DebugServer::DebugServer(): m_server{80}, ssid{"EagleEyePixel"}, password{"JuliandsHotspot42"} {}
+DebugServer::DebugServer(): m_server{80}, ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"} {}
 
 void DebugServer::setup() {
   setupRouting();
