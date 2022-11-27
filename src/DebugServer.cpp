@@ -3,87 +3,84 @@
 #include <WiFi.h>
 #include <ArduinoOTA.h>
 #include <functional>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 
 #include "Config.h"
 #include "constants.h"
 #include "driving.h"
 
-DebugServer::DebugServer(): m_server{80}, ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"} {}
+using namespace std::placeholders;
 
-void DebugServer::setCrossOrigin(){
-    m_server.sendHeader(F("Access-Control-Allow-Origin"), F("*"));
-    m_server.sendHeader(F("Access-Control-Max-Age"), F("600"));
-    m_server.sendHeader(F("Access-Control-Allow-Methods"), F("PUT,POST,GET,OPTIONS"));
-    m_server.sendHeader(F("Access-Control-Allow-Headers"), F("*"));
-};
+DebugServer::DebugServer(): m_server{80}, ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"}, socket("/ws") {}
 
-void DebugServer::sendCrossOriginHeader(){
-    m_server.sendHeader(F("access-control-allow-credentials"), F("false"));
-    setCrossOrigin();
-    m_server.send(204);
+void DebugServer::notifyClients() {
+  socket.textAll(String(driving::getSpeed()));
+}
+
+void DebugServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+    data[len] = 0;
+    int speed = String((char*)data).toInt();
+    driving::setSpeed(speed);
+    notifyClients();
+  }
+}
+void DebugServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+             void *arg, uint8_t *data, size_t len) {
+  switch (type) {
+    case WS_EVT_CONNECT:
+      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      break;
+    case WS_EVT_DISCONNECT:
+      Serial.printf("WebSocket client #%u disconnected\n", client->id());
+      break;
+    case WS_EVT_DATA:
+      handleWebSocketMessage(arg, data, len);
+      break;
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      break;
+  }
+}
+
+void DebugServer::initWebSocket() {
+  socket.onEvent(std::bind(&DebugServer::onEvent, this, _1, _2, _3, _4, _5, _6));
+  m_server.addHandler(&socket);
+}
+
+String processor(const String& var){
+  Serial.println(var);
+  if(var == "STATE"){
+    return String(driving::getSpeed());
+  }
+  return String();
 }
 
 void DebugServer::setup() {
+ 
+  // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi.");
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     ledcWrite(SLED_PWM_CHANNEL, 0);
     delay(500);
     ledcWrite(SLED_PWM_CHANNEL, 255);
     delay(500);
-    Serial.print(".");
+    Serial.println("Connecting to WiFi..");
   }
-  Serial.println("Connected!");
-  setupRouting();
-}
 
-void DebugServer::getHome() {
-  setCrossOrigin();
-  String response = "<h1> Carrera Fahrzeug </h1>";
-  if (m_server.arg("Speed") != ""){
-    String speed = m_server.arg("Speed");
-    response += "<p> Speed = " + speed + "</p>";
-    try {
-      int speedValue = std::atoi(speed.c_str());
-      driving::setSpeed(speedValue);
-    }
-    catch(...) {
-      response += "<strong> THIS IS NOT A NUMBER, IDIOT </strong>";
-    }
-  }
-  m_server.send(200, "text/html", response);
-}
+  // Print ESP Local IP Address
+  Serial.println(WiFi.localIP());
 
-void DebugServer::setSpeed() {
-  setCrossOrigin();
-  String response = "";
-  if (m_server.arg("Speed") != ""){
-    String speed = m_server.arg("Speed");
-    try {
-      int speedValue = std::atoi(speed.c_str());
-      driving::setSpeed(speedValue);
-      response = "{\"speed\":" + speed + "}";
-    }
-    catch(...) {
-      response = "{\"error\": \"Speed is not a number\"}";
-    }
-  }
-  m_server.send(200, "application/json", response);
-}
+  initWebSocket();
 
-void DebugServer::activateOTA() {
-  setCrossOrigin();
-  String response = "<h1> OTA Updates enabled! </h1> <p> The OTA process will start right now. </p> <p> The vehicle won't respond to any further commands unless you restart it! </p>";
-  m_server.send(200, "text/html", response);
-  emergencyOTA();
-}
+  // Route for root / web page
+  m_server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", index_html, processor);
+  });
 
-void DebugServer::setupRouting() {
-  m_server.on("/", HTTP_GET, std::bind(&DebugServer::getHome, this));
-  m_server.on("/", HTTP_POST, std::bind(&DebugServer::setSpeed, this));
-  m_server.on("/", HTTP_OPTIONS, std::bind(&DebugServer::sendCrossOriginHeader, this));
-  m_server.on("/OTA", HTTP_GET, std::bind(&DebugServer::activateOTA, this));
+  // Start server
   m_server.begin();
 }
 
@@ -144,5 +141,5 @@ void DebugServer::emergencyOTA()
 }
 
 void DebugServer::loop() {
-  m_server.handleClient();
+  
 }
