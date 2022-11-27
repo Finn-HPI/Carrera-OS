@@ -1,67 +1,121 @@
-<h1>Carrera OS</h1>
-
-<input id="ip" placeholder="IP" onchange="setIP()" value="http://192.168.137.25"> 
-
-<h2 id="speedDisplay">00</h2>
-
-<input id="inputSlider" type="range" min="0" max="100" value="0" oninput="changeInput()">
+<head>
+	<title>Carrera 2.0</title>
+</head>
+<body>
+	<input id="ip" placeholder="IP" onchange="setIP()" value="http://192.168.137.25">
+	<div id="speedInput">
+		<div id="speedValueDisplay">
+			00
+		</div>
+	</div>
+</body>
 
 <script>
-    var ip=document.getElementById("ip").value;
-    function setIP() {
-        ip = document.getElementById("ip").value;
-    }
-    function changeInput() {
-        const value = document.getElementById("inputSlider").value;
-        document.getElementById("speedDisplay").innerHTML = value;
-        httpPostAsync(`${ip}?Speed=${value}`, log);
-    }
+// This handles the input Slider.
+setupMouseEvent();
 
-    function test() {
-        httpGetAsync(`${ip}`, log);
-    }
+function setupMouseEvent() {
+	document.getElementById("speedInput").addEventListener("mousedown", handleMouseClick);
+	document.getElementById("speedInput").addEventListener("mousemove", handleMouseClick);
+	document.getElementById("speedInput").addEventListener("touchmove", handleTouchEvent);
+}
 
-    function httpGetAsync(theUrl, callback) {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                callback(xmlHttp.responseText);
-        }
-        xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-        xmlHttp.send(null);
-    }
+function handleMouseClick(event) {
+	if (!event.buttons || event.buttons != 1) return;
+	const yPos = event.offsetY;
+	const height = document.getElementById("speedInput").offsetHeight;
+	const value = 1-(yPos/height);
+	handleUserInput(value);
+}
 
-    function httpPostAsync(theUrl, callback) {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                callback(xmlHttp.responseText);
-        }
-        xmlHttp.open("POST", theUrl, true); // true for asynchronous 
-        xmlHttp.send(null);
-    }
+function handleTouchEvent(touchEvent) {
+	const touch = touchEvent.touches[0];
+	const inputFieldBounds = document.getElementById("speedInput").getBoundingClientRect();
+	const yPos = touch.clientY - inputFieldBounds.top;
+	const height = inputFieldBounds.height;
+	const value = 1-(yPos/height);
+	handleUserInput(value);
+}
 
-    // function httpPutAsync(url, body, callback) {
-    //     var xmlHttp = new XMLHttpRequest();
-    //     xmlHttp.onreadystatechange = function() { 
-    //         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-    //             callback(xmlHttp.responseText);
-    //     }
-    //     xmlHttp.open("PUT", url, true); // true for asynchronous 
-    //     xmlHttp.send(body);
-    // }
+function handleUserInput(value) {
+	displaySpeedValue(value);
+	// sendSpeedRequest(value);
+}
 
-    function log(message) {
-        console.log(message);
-    }
+function displaySpeedValue(pctValue) {
+	const input = document.getElementById("speedInput");
+	const value = convertPctToAbsoluteSpeed(pctValue);
+	document.getElementById("speedValueDisplay").innerHTML = value;
+	const v = Math.round(pctValue * 100);
+	input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${v}%, var(--lightColor) ${v}%, var(--lightColor) 100%)`;
+}
+
+function convertPctToAbsoluteSpeed(pctValue) {
+	const min = 0;
+	const max = 130;
+	const value = min + Math.round(pctValue * (max - min));
+	return value;
+}
+
+function sendSpeedRequest(pctValue) {
+	const value = convertPctToAbsoluteSpeed(pctValue);
+	httpPostAsync(`${ip}?Speed=${value}`, log);
+}
+
+// This is for communicating with the Vehicle:
+var ip = document.getElementById("ip").value;
+
+function setIP() {
+	ip = document.getElementById("ip").value;
+}
+
+function httpGetAsync(theUrl, callback) {
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() { 
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			callback(xmlHttp.responseText);
+	}
+	xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+	xmlHttp.send(null);
+}
+
+function httpPostAsync(theUrl, callback) {
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() { 
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			callback(xmlHttp.responseText);
+	}
+	xmlHttp.open("POST", theUrl, true); // true for asynchronous 
+	xmlHttp.send(null);
+}
+
+function log(message) {
+	console.log(message);
+}
 </script>
 
 <style>
-#inputSlider {
-    position: fixed;
-    transform: rotate(-90deg);
-    width: 80vh;
-    top: 50%;
-    left: -35vh;
+#speedInput {
+	--lightColor: lightGray;
+	--darkColor: gray;
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 80vw;
+	height: 90vh;
+	border-radius: 10px;
+	background: var(--lightColor);
+}
+
+#speedValueDisplay {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	font-size: 10rem;
+	transform: translate(-50%, -50%);
+	-webkit-user-select: none; /* Safari */
+	-ms-user-select: none; /* IE 10 and IE 11 */
+	user-select: none; /* Standard syntax */
 }
 </style>
