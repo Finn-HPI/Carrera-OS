@@ -30,110 +30,194 @@ extern DebugServer server;
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Carrera RC </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="data:," />
-    <style>
-      html {
-        font-family: Arial, Helvetica, sans-serif;
-        text-align: center;
-      }
-      h1 {
-        font-size: 1.8rem;
-        color: white;
-      }
-      h2 {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #143642;
-      }
-      body {
-        margin: 0;
-      }
-      .state {
-        font-size: 1.5rem;
-        color: #8c8c8c;
-        font-weight: bold;
-      }
-      .slider {
-        -webkit-appearance: none;
-        height: 50px;
-        width: 300px;
-        transform: rotate(-90deg) translate(0, -100%);
-        transform-origin: 100% 0;
-        border-radius: 25px;
-        background: #d3d3d3;
-        outline: none;
-        opacity: 0.7;
-        -webkit-transition: 0.2s;
-        transition: opacity 0.2s;
-      }
+<head>
+	<title>Carrera 2.0</title>
+</head>
+<body>
+	<div id="speedInput">
+		<div id="speedValueDisplay">
+			00
+		</div>
+	</div>
+	<div id="ledPanel">
+		<div id="ledDurationDisplay"></div>
+		<div id="ledButton"></div>
+	</div>
+</body>
 
-      .slider:hover {
-        opacity: 1;
-      }
+<script>
+// This handles the input Slider.
+setupMouseEvent();
 
-      .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        border-radius: 25px;
-        width: 50px;
-        height: 50px;
-        background: #04aa6d;
-        cursor: pointer;
-      }
+function setupMouseEvent() {
+	document.getElementById("speedInput").addEventListener("mousedown", handleMouseClick);
+	document.getElementById("speedInput").addEventListener("mousemove", handleMouseClick);
+	document.getElementById("speedInput").addEventListener("touchmove", handleTouchEvent);
+	document.getElementById("ledButton").addEventListener("mousedown", clickLedButton);
+}
 
-      .slider::-moz-range-thumb {
-        width: 50px;
-        height: 50px;
-        border-radius: 25px;
-        background: #04aa6d;
-        cursor: pointer;
-      }
-    </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="data:," />
-  </head>
-  <body>
-    <p class="state:">Throttle: <span id="state">0%</span></p>
-    <input id="throttle-slider" class="slider" type="range" min="0" max="100" value="0" step="1" />
-    <script>
-      var gateway = `ws://${window.location.hostname}/ws`;
-      var websocket;
-      window.addEventListener("load", onLoad);
-      function initWebSocket() {
-        console.log("Trying to open a WebSocket connection...");
-        websocket = new WebSocket(gateway);
-        websocket.onopen = onOpen;
-        websocket.onclose = onClose;
-        websocket.onmessage = onMessage;
-      }
-      function onOpen(event) {
-        console.log("Connection opened");
-      }
-      function onClose(event) {
-        console.log("Connection closed");
-        setTimeout(initWebSocket, 2000);
-      }
-      function onMessage(event) {
-        var state;
-        state = event.data;
-        document.getElementById("state").innerHTML = state;
-      }
-      function onLoad(event) {
-        initWebSocket();
-        initSlider();
-      }
-      function initSlider() {
-        document.getElementById("throttle-slider").addEventListener("input", update);
-      }
-      function update() {
-        state = document.getElementById("throttle-slider").value;
-        websocket.send(state);
-      }
-    </script>
-  </body>
-  </html>
+function handleMouseClick(event) {
+	if (!event.buttons || event.buttons != 1) return;
+	const yPos = event.offsetY;
+	const height = document.getElementById("speedInput").offsetHeight;
+	const value = clampPctValue(1-(yPos/height));
+	handleUserInput(value);
+}
 
+function handleTouchEvent(touchEvent) {
+	const touch = touchEvent.touches[0];
+	const inputFieldBounds = document.getElementById("speedInput").getBoundingClientRect();
+	const yPos = touch.clientY - inputFieldBounds.top;
+	const height = inputFieldBounds.height;
+	const value = clampPctValue(1-(yPos/height));
+	handleUserInput(value);
+}
+
+function handleUserInput(pctValue) {
+	displaySpeedValue(pctValue);
+	updateSpeed(convertPctToAbsoluteSpeed(pctValue));
+}
+
+function clickLedButton() {
+	console.log("TODO: Activate LED!");
+	const display = document.getElementById("ledDurationDisplay");
+	display.classList.remove("animate");
+	setTimeout(() => {display.classList.add("animate")}, 1);
+}
+
+function displaySpeedValue(pctValue) {
+	const input = document.getElementById("speedInput");
+	const value = convertPctToAbsoluteSpeed(pctValue);
+	// document.getElementById("speedValueDisplay").innerHTML = value;
+	const v = Math.round(pctValue * 100);
+	input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${v}%, var(--lightColor) ${v}%, var(--lightColor) 100%)`;
+}
+
+function clampPctValue(pctValue) {
+	return Math.min(Math.max(0, pctValue), 1);
+}
+
+function convertPctToAbsoluteSpeed(pctValue) {
+	const min = 0;
+	const max = 130;
+	const value = min + Math.round(pctValue * (max - min));
+	return value;
+}
+
+//Websockets:
+var gateway = `ws://${window.location.hostname}/ws`;
+var websocket;
+window.addEventListener("load", onLoad);
+function initWebSocket() {
+	console.log("Trying to open a WebSocket connection...");
+	websocket = new WebSocket(gateway);
+	websocket.onopen = onOpen;
+	websocket.onclose = onClose;
+	websocket.onmessage = onMessage;
+}
+function onOpen(event) {
+	console.log("Connection opened");
+}
+function onClose(event) {
+	console.log("Connection closed");
+	setTimeout(initWebSocket, 2000);
+}
+function onMessage(event) {
+	const value = event.data;
+	document.getElementById("speedValueDisplay").innerHTML = value;
+}
+function onLoad(event) {
+	initWebSocket();
+}
+function updateSpeed(value) {
+	websocket.send(value);
+}
+</script>
+
+<style>
+:root {
+	--buttonColor: #3D7EAA;
+	--shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
+}
+body {
+	background: linear-gradient(135deg, #283048, #859398);
+}
+
+#speedInput {
+	opacity: 0.8;
+	--lightColor: lightGray;
+	--darkColor: gray;
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 80vw;
+	height: 90vh;
+	border-radius: 10px;
+	background: var(--lightColor);
+	box-shadow: var(--shadow);
+}
+
+#speedValueDisplay {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	font-size: 10rem;
+	transform: translate(-50%, -50%);
+	-webkit-user-select: none; /* Safari */
+	-ms-user-select: none; /* IE 10 and IE 11 */
+	user-select: none; /* Standard syntax */
+}
+
+#ledPanel {
+	position: fixed;
+	right: 0px;
+	top: 0px;
+	height: 100vh;
+	width: 10vw;
+}
+
+#ledButton {
+	position: absolute;
+	bottom: 1em;
+	left: 50%;
+	border-radius: 50%;
+	box-shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
+	transform: translate(-50%);
+	width: 80%;
+	aspect-ratio: 1;
+	background-color: var(--buttonColor);
+	box-shadow: var(--shadow);
+}
+
+#ledDurationDisplay {
+	--activeColor: var(--buttonColor);
+	--inactiveColor: rgba(211, 211, 211, 0);
+	position: absolute;
+	background: linear-gradient(to top, var(--activeColor) 0%, var(--activeColor) 50%, var(--inactiveColor) 50%, var(--inactiveColor) 100%);
+	background-size: 100% 200%; /* For animating the background */
+	border-radius: 5px;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 10px;
+	height: 80%;
+}
+
+#ledDurationDisplay.animate {
+	animation-name: durationDisplay;
+	animation-timing-function: linear;
+	animation-duration: 1s;
+}
+/* This moves the display for the duration of the led */
+@keyframes durationDisplay {
+	0% {
+		background-position: 0% 100%; 
+	}
+	100% {
+		background-position: 0% 0%;
+	}
+}
+</style>
+</html>
 )rawliteral";

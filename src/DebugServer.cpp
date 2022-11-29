@@ -12,7 +12,7 @@
 
 using namespace std::placeholders;
 
-DebugServer::DebugServer(): m_server{80}, ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"}, socket("/ws") {}
+DebugServer::DebugServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"} {}
 
 void DebugServer::notifyClients() {
   socket.textAll(String(driving::getSpeed()));
