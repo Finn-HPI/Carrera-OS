@@ -101,9 +101,9 @@ function updateSpeedInputDisplay() { // TODO
 	const actualValue = 100 * absoluteToPctSpeed(currentSpeed);
 	document.getElementById("speedValueDisplay").innerHTML = currentSpeed;
 	if (actualValue < inputValue) {
-		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${actualValue}%, var(--changeColor) ${actualValue}%, var(--changeColor) ${inputValue}%, var(--lightColor) ${inputValue}%, var(--lightColor) 100%)`;
+		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%%, var(--darkColor) ${actualValue}%%, var(--changeColor) ${actualValue}%%, var(--changeColor) ${inputValue}%%, var(--lightColor) ${inputValue}%%, var(--lightColor) 100%%)`;
 	} else {
-		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${inputValue}%, var(--changeColor) ${inputValue}%, var(--changeColor) ${actualValue}%, var(--lightColor) ${actualValue}%, var(--lightColor) 100%)`;
+		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%%, var(--darkColor) ${inputValue}%%, var(--changeColor) ${inputValue}%%, var(--changeColor) ${actualValue}%%, var(--lightColor) ${actualValue}%%, var(--lightColor) 100%%)`;
 	}
 	
 }
@@ -172,9 +172,9 @@ body {
 	--darkColor: gray;
 	--changeColor: rgb(225, 199, 93);
 	position: fixed;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	left: 50%%;
+	top: 50%%;
+	transform: translate(-50%%, -50%%);
 	width: 80vw;
 	height: 90vh;
 	border-radius: 10px;
@@ -184,10 +184,10 @@ body {
 
 #speedValueDisplay {
 	position: absolute;
-	left: 50%;
-	top: 50%;
+	left: 50%%;
+	top: 50%%;
 	font-size: 10rem;
-	transform: translate(-50%, -50%);
+	transform: translate(-50%%, -50%%);
 	-webkit-user-select: none; /* Safari */
 	-ms-user-select: none; /* IE 10 and IE 11 */
 	user-select: none; /* Standard syntax */
@@ -204,11 +204,11 @@ body {
 #ledButton {
 	position: absolute;
 	bottom: 1em;
-	left: 50%;
-	border-radius: 50%;
+	left: 50%%;
+	border-radius: 50%%;
 	box-shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
-	transform: translate(-50%);
-	width: 80%;
+	transform: translate(-50%%);
+	width: 80%%;
 	aspect-ratio: 1;
 	background-color: var(--buttonColor);
 	box-shadow: var(--shadow);
@@ -218,14 +218,14 @@ body {
 	--activeColor: var(--buttonColor);
 	--inactiveColor: rgba(211, 211, 211, 0);
 	position: absolute;
-	background: linear-gradient(to top, var(--activeColor) 0%, var(--activeColor) 50%, var(--inactiveColor) 50%, var(--inactiveColor) 100%);
-	background-size: 100% 200%; /* For animating the background */
+	background: linear-gradient(to top, var(--activeColor) 0%%, var(--activeColor) 50%%, var(--inactiveColor) 50%%, var(--inactiveColor) 100%%);
+	background-size: 100%% 200%%; /* For animating the background */
 	border-radius: 5px;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	left: 50%%;
+	top: 50%%;
+	transform: translate(-50%%, -50%%);
 	width: 10px;
-	height: 80%;
+	height: 80%%;
 }
 
 #ledDurationDisplay.animate {
@@ -235,11 +235,11 @@ body {
 }
 /* This moves the display for the duration of the led */
 @keyframes durationDisplay {
-	0% {
-		background-position: 0% 100%; 
+	0%% {
+		background-position: 0%% 100%%; 
 	}
-	100% {
-		background-position: 0% 0%;
+	100%% {
+		background-position: 0%% 0%%;
 	}
 }
 </style>
