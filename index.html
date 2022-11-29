@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
 </head>
 <body>
@@ -45,7 +46,8 @@ function handleTouchEvent(touchEvent) {
 
 function handleUserInput(pctValue) {
 	displaySpeedValue(pctValue);
-	updateSpeed(convertPctToAbsoluteSpeed(pctValue));
+	const absolute = convertPctToAbsoluteSpeed(pctValue);
+	updateSpeed(absolute);
 }
 
 function clickLedButton() {
@@ -93,6 +95,7 @@ function onClose(event) {
 	setTimeout(initWebSocket, 2000);
 }
 function onMessage(event) {
+	console.log("Recieving: ", event);
 	const value = event.data;
 	document.getElementById("speedValueDisplay").innerHTML = value;
 }
@@ -100,7 +103,8 @@ function onLoad(event) {
 	initWebSocket();
 }
 function updateSpeed(value) {
-	websocket.send(value);
+	console.log("Sending to websocket", value);
+	websocket.send(value.toString());
 }
 </script>
 

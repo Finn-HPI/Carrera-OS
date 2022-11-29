@@ -31,6 +31,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
 </head>
 <body>
@@ -75,7 +76,8 @@ function handleTouchEvent(touchEvent) {
 
 function handleUserInput(pctValue) {
 	displaySpeedValue(pctValue);
-	updateSpeed(convertPctToAbsoluteSpeed(pctValue));
+	const absolute = convertPctToAbsoluteSpeed(pctValue);
+	updateSpeed(absolute);
 }
 
 function clickLedButton() {
@@ -90,7 +92,7 @@ function displaySpeedValue(pctValue) {
 	const value = convertPctToAbsoluteSpeed(pctValue);
 	// document.getElementById("speedValueDisplay").innerHTML = value;
 	const v = Math.round(pctValue * 100);
-	input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${v}%, var(--lightColor) ${v}%, var(--lightColor) 100%)`;
+	input.style.background = `linear-gradient(0deg, var(--darkColor) 0%%, var(--darkColor) ${v}%%, var(--lightColor) ${v}%%, var(--lightColor) 100%%)`;
 }
 
 function clampPctValue(pctValue) {
@@ -123,6 +125,7 @@ function onClose(event) {
 	setTimeout(initWebSocket, 2000);
 }
 function onMessage(event) {
+	console.log("Recieving: ", event);
 	const value = event.data;
 	document.getElementById("speedValueDisplay").innerHTML = value;
 }
@@ -130,7 +133,8 @@ function onLoad(event) {
 	initWebSocket();
 }
 function updateSpeed(value) {
-	websocket.send(value);
+	console.log("Sending to websocket", value);
+	websocket.send(value.toString());
 }
 </script>
 
@@ -148,9 +152,9 @@ body {
 	--lightColor: lightGray;
 	--darkColor: gray;
 	position: fixed;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	left: 50%%;
+	top: 50%%;
+	transform: translate(-50%%, -50%%);
 	width: 80vw;
 	height: 90vh;
 	border-radius: 10px;
@@ -160,10 +164,10 @@ body {
 
 #speedValueDisplay {
 	position: absolute;
-	left: 50%;
-	top: 50%;
+	left: 50%%;
+	top: 50%%;
 	font-size: 10rem;
-	transform: translate(-50%, -50%);
+	transform: translate(-50%%, -50%%);
 	-webkit-user-select: none; /* Safari */
 	-ms-user-select: none; /* IE 10 and IE 11 */
 	user-select: none; /* Standard syntax */
@@ -180,11 +184,11 @@ body {
 #ledButton {
 	position: absolute;
 	bottom: 1em;
-	left: 50%;
-	border-radius: 50%;
+	left: 50%%;
+	border-radius: 50%%;
 	box-shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
-	transform: translate(-50%);
-	width: 80%;
+	transform: translate(-50%%);
+	width: 80%%;
 	aspect-ratio: 1;
 	background-color: var(--buttonColor);
 	box-shadow: var(--shadow);
@@ -194,14 +198,14 @@ body {
 	--activeColor: var(--buttonColor);
 	--inactiveColor: rgba(211, 211, 211, 0);
 	position: absolute;
-	background: linear-gradient(to top, var(--activeColor) 0%, var(--activeColor) 50%, var(--inactiveColor) 50%, var(--inactiveColor) 100%);
-	background-size: 100% 200%; /* For animating the background */
+	background: linear-gradient(to top, var(--activeColor) 0%%, var(--activeColor) 50%%, var(--inactiveColor) 50%%, var(--inactiveColor) 100%%);
+	background-size: 100%% 200%%; /* For animating the background */
 	border-radius: 5px;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	left: 50%%;
+	top: 50%%;
+	transform: translate(-50%%, -50%%);
 	width: 10px;
-	height: 80%;
+	height: 80%%;
 }
 
 #ledDurationDisplay.animate {
@@ -211,11 +215,11 @@ body {
 }
 /* This moves the display for the duration of the led */
 @keyframes durationDisplay {
-	0% {
-		background-position: 0% 100%; 
+	0%% {
+		background-position: 0%% 100%%; 
 	}
-	100% {
-		background-position: 0% 0%;
+	100%% {
+		background-position: 0%% 0%%;
 	}
 }
 </style>
