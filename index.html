@@ -17,6 +17,12 @@
 </body>
 
 <script>
+// Variables and constants
+const min = 0;
+const max = 130;
+var currentSpeed = 0;
+var speedInput = 0;
+
 // This handles the input Slider.
 setupMouseEvent();
 
@@ -45,8 +51,10 @@ function handleTouchEvent(touchEvent) {
 }
 
 function handleUserInput(pctValue) {
-	displaySpeedValue(pctValue);
 	const absolute = convertPctToAbsoluteSpeed(pctValue);
+	if (speedInput == absolute) return; // No change happened, we can ignore this
+	speedInput = absolute;
+	updateSpeedInputDisplay();
 	updateSpeed(absolute);
 }
 
@@ -57,12 +65,17 @@ function clickLedButton() {
 	setTimeout(() => {display.classList.add("animate")}, 1);
 }
 
-function displaySpeedValue(pctValue) {
+function updateSpeedInputDisplay() { // TODO
 	const input = document.getElementById("speedInput");
-	const value = convertPctToAbsoluteSpeed(pctValue);
-	// document.getElementById("speedValueDisplay").innerHTML = value;
-	const v = Math.round(pctValue * 100);
-	input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${v}%, var(--lightColor) ${v}%, var(--lightColor) 100%)`;
+	const inputValue = 100 * absoluteToPctSpeed(speedInput);
+	const actualValue = 100 * absoluteToPctSpeed(currentSpeed);
+	document.getElementById("speedValueDisplay").innerHTML = currentSpeed;
+	if (actualValue < inputValue) {
+		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${actualValue}%, var(--changeColor) ${actualValue}%, var(--changeColor) ${inputValue}%, var(--lightColor) ${inputValue}%, var(--lightColor) 100%)`;
+	} else {
+		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${inputValue}%, var(--changeColor) ${inputValue}%, var(--changeColor) ${actualValue}%, var(--lightColor) ${actualValue}%, var(--lightColor) 100%)`;
+	}
+	
 }
 
 function clampPctValue(pctValue) {
@@ -70,15 +83,18 @@ function clampPctValue(pctValue) {
 }
 
 function convertPctToAbsoluteSpeed(pctValue) {
-	const min = 0;
-	const max = 130;
 	const value = min + Math.round(pctValue * (max - min));
 	return value;
+}
+
+function absoluteToPctSpeed(absoluteValue) {
+	return (absoluteValue - min) / max;
 }
 
 //Websockets:
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
+var connected = false;
 window.addEventListener("load", onLoad);
 function initWebSocket() {
 	console.log("Trying to open a WebSocket connection...");
@@ -88,22 +104,25 @@ function initWebSocket() {
 	websocket.onmessage = onMessage;
 }
 function onOpen(event) {
+	connected = true;
 	console.log("Connection opened");
 }
 function onClose(event) {
+	connected = false;
 	console.log("Connection closed");
 	setTimeout(initWebSocket, 2000);
 }
 function onMessage(event) {
 	console.log("Recieving: ", event);
-	const value = event.data;
-	document.getElementById("speedValueDisplay").innerHTML = value;
+	currentSpeed = event.data;
+	updateSpeedInputDisplay();
 }
 function onLoad(event) {
 	initWebSocket();
 }
 function updateSpeed(value) {
 	console.log("Sending to websocket", value);
+	if (!connected) return;
 	websocket.send(value.toString());
 }
 </script>
@@ -121,6 +140,7 @@ body {
 	opacity: 0.8;
 	--lightColor: lightGray;
 	--darkColor: gray;
+	--changeColor: rgb(225, 199, 93);
 	position: fixed;
 	left: 50%;
 	top: 50%;
