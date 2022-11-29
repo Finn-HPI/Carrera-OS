@@ -16,12 +16,13 @@ private:
 
 public:
   DebugServer();
+  void connectToWifi();
   void setup();
   void initWebSocket();
   void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
              void *arg, uint8_t *data, size_t len);
   void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
-  void notifyClients();
+  void notifyClients(int newSpeed);
   void emergencyOTA();
   void loop();
 };

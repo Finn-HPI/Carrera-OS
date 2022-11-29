@@ -14,8 +14,8 @@ using namespace std::placeholders;
 
 DebugServer::DebugServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"} {}
 
-void DebugServer::notifyClients() {
-  socket.textAll(String(driving::getSpeed()));
+void DebugServer::notifyClients(int newSpeed) {
+  socket.textAll(String(newSpeed));
 }
 
 void DebugServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
@@ -24,7 +24,7 @@ void DebugServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     data[len] = 0;
     int speed = String((char*)data).toInt();
     driving::setSpeed(speed);
-    notifyClients();
+    notifyClients(speed);
   }
 }
 void DebugServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
@@ -58,9 +58,7 @@ String processor(const String& var){
   return String();
 }
 
-void DebugServer::setup() {
- 
-  // Connect to Wi-Fi
+void DebugServer::connectToWifi() {
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     ledcWrite(SLED_PWM_CHANNEL, 0);
@@ -72,12 +70,20 @@ void DebugServer::setup() {
 
   // Print ESP Local IP Address
   Serial.println(WiFi.localIP());
+}
+
+void DebugServer::setup() {
+  connectToWifi();
 
   initWebSocket();
 
   // Route for root / web page
   m_server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, processor);
+  });
+  m_server.on("/OTA", HTTP_GET, [this](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", "Ready for OTA!");
+    this->emergencyOTA();
   });
 
   // Start server
@@ -88,15 +94,7 @@ void DebugServer::emergencyOTA()
 {
   Serial.begin(115200);
 
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.println("Connecting to WiFi..");
-  }
-
-  Serial.println("Connected to the WiFi network");
+  connectToWifi();
 
   delay(100);
 
@@ -136,7 +134,11 @@ void DebugServer::emergencyOTA()
   while (true)  
   {
     ArduinoOTA.handle();
-    delay(10);
+    ledcWrite(SLED_PWM_CHANNEL, 0);
+    delay(500);
+    ArduinoOTA.handle();
+    ledcWrite(SLED_PWM_CHANNEL, 255);
+    delay(500);
   }
 }
 
