@@ -2,7 +2,6 @@
 	<title>Carrera 2.0</title>
 </head>
 <body>
-	<input id="ip" placeholder="IP" onchange="setIP()" value="http://192.168.137.25">
 	<div id="speedInput">
 		<div id="speedValueDisplay">
 			00
@@ -29,7 +28,7 @@ function handleMouseClick(event) {
 	if (!event.buttons || event.buttons != 1) return;
 	const yPos = event.offsetY;
 	const height = document.getElementById("speedInput").offsetHeight;
-	const value = 1-(yPos/height);
+	const value = clampPctValue(1-(yPos/height));
 	handleUserInput(value);
 }
 
@@ -38,13 +37,13 @@ function handleTouchEvent(touchEvent) {
 	const inputFieldBounds = document.getElementById("speedInput").getBoundingClientRect();
 	const yPos = touch.clientY - inputFieldBounds.top;
 	const height = inputFieldBounds.height;
-	const value = 1-(yPos/height);
+	const value = clampPctValue(1-(yPos/height));
 	handleUserInput(value);
 }
 
-function handleUserInput(value) {
-	displaySpeedValue(value);
-	// sendSpeedRequest(value);
+function handleUserInput(pctValue) {
+	displaySpeedValue(pctValue);
+	updateSpeed(convertPctToAbsoluteSpeed(pctValue));
 }
 
 function clickLedButton() {
@@ -57,9 +56,13 @@ function clickLedButton() {
 function displaySpeedValue(pctValue) {
 	const input = document.getElementById("speedInput");
 	const value = convertPctToAbsoluteSpeed(pctValue);
-	document.getElementById("speedValueDisplay").innerHTML = value;
+	// document.getElementById("speedValueDisplay").innerHTML = value;
 	const v = Math.round(pctValue * 100);
 	input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${v}%, var(--lightColor) ${v}%, var(--lightColor) 100%)`;
+}
+
+function clampPctValue(pctValue) {
+	return Math.min(Math.max(0, pctValue), 1);
 }
 
 function convertPctToAbsoluteSpeed(pctValue) {
@@ -69,40 +72,33 @@ function convertPctToAbsoluteSpeed(pctValue) {
 	return value;
 }
 
-function sendSpeedRequest(pctValue) {
-	const value = convertPctToAbsoluteSpeed(pctValue);
-	httpPostAsync(`${ip}?Speed=${value}`, log);
+//Websockets:
+var gateway = `ws://${window.location.hostname}/ws`;
+var websocket;
+window.addEventListener("load", onLoad);
+function initWebSocket() {
+	console.log("Trying to open a WebSocket connection...");
+	websocket = new WebSocket(gateway);
+	websocket.onopen = onOpen;
+	websocket.onclose = onClose;
+	websocket.onmessage = onMessage;
 }
-
-// This is for communicating with the Vehicle:
-var ip = document.getElementById("ip").value;
-
-function setIP() {
-	ip = document.getElementById("ip").value;
+function onOpen(event) {
+	console.log("Connection opened");
 }
-
-function httpGetAsync(theUrl, callback) {
-	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function() { 
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-			callback(xmlHttp.responseText);
-	}
-	xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-	xmlHttp.send(null);
+function onClose(event) {
+	console.log("Connection closed");
+	setTimeout(initWebSocket, 2000);
 }
-
-function httpPostAsync(theUrl, callback) {
-	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function() { 
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-			callback(xmlHttp.responseText);
-	}
-	xmlHttp.open("POST", theUrl, true); // true for asynchronous 
-	xmlHttp.send(null);
+function onMessage(event) {
+	const value = event.data;
+	document.getElementById("speedValueDisplay").innerHTML = value;
 }
-
-function log(message) {
-	console.log(message);
+function onLoad(event) {
+	initWebSocket();
+}
+function updateSpeed(value) {
+	websocket.send(value);
 }
 </script>
 
