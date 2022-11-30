@@ -24,5 +24,4 @@ public:
   void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
   void notifyClients(int newSpeed);
   void emergencyOTA();
-  void loop();
 };

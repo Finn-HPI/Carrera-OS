@@ -141,7 +141,3 @@ void DebugServer::emergencyOTA()
     delay(500);
   }
 }
-
-void DebugServer::loop() {
-  
-}
