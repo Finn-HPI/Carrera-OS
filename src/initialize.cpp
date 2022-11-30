@@ -65,7 +65,7 @@ void initialize::power() {
   Serial.println(getCpuFrequencyMhz());
 }
 
-void initialize::debugServer() {  
+void initialize::carreraServer() {  
   server.setup();
   ledcWrite(SLED_PWM_CHANNEL, 255);
 }

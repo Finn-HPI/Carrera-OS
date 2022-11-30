@@ -6,7 +6,7 @@
 #include "AsyncTCP.h"
 #include "ESPAsyncWebServer.h"
 
-class DebugServer
+class CarreraServer
 {
 private:
   AsyncWebServer m_server;
@@ -15,7 +15,7 @@ private:
   const char* password;
 
 public:
-  DebugServer();
+  CarreraServer();
   void connectToWifi();
   void setup();
   void initWebSocket();

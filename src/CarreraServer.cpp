@@ -1,4 +1,4 @@
-#include "DebugServer.h"
+#include "CarreraServer.h"
 
 #include <WiFi.h>
 #include <ArduinoOTA.h>
@@ -12,13 +12,13 @@
 
 using namespace std::placeholders;
 
-DebugServer::DebugServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"} {}
+CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"} {}
 
-void DebugServer::notifyClients(int newSpeed) {
+void CarreraServer::notifyClients(int newSpeed) {
   socket.textAll(String(newSpeed));
 }
 
-void DebugServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+void CarreraServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
@@ -27,7 +27,7 @@ void DebugServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     notifyClients(speed);
   }
 }
-void DebugServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
              void *arg, uint8_t *data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
@@ -45,8 +45,8 @@ void DebugServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, 
   }
 }
 
-void DebugServer::initWebSocket() {
-  socket.onEvent(std::bind(&DebugServer::onEvent, this, _1, _2, _3, _4, _5, _6));
+void CarreraServer::initWebSocket() {
+  socket.onEvent(std::bind(&CarreraServer::onEvent, this, _1, _2, _3, _4, _5, _6));
   m_server.addHandler(&socket);
 }
 
@@ -58,7 +58,7 @@ String processor(const String& var){
   return String();
 }
 
-void DebugServer::connectToWifi() {
+void CarreraServer::connectToWifi() {
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     ledcWrite(SLED_PWM_CHANNEL, 0);
@@ -72,7 +72,7 @@ void DebugServer::connectToWifi() {
   Serial.println(WiFi.localIP());
 }
 
-void DebugServer::setup() {
+void CarreraServer::setup() {
   connectToWifi();
 
   initWebSocket();
@@ -90,7 +90,7 @@ void DebugServer::setup() {
   m_server.begin();
 }
 
-void DebugServer::emergencyOTA()
+void CarreraServer::emergencyOTA()
 {
   Serial.begin(115200);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DebugServer.h"
+#include "CarreraServer.h"
 
 using namespace std;
 
@@ -25,7 +25,7 @@ using namespace std;
 #define MOTOR_BRK_PWM_CHANNEL 1
 #define SLED_PWM_CHANNEL 2
 
-extern DebugServer server;
+extern CarreraServer server;
 
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>

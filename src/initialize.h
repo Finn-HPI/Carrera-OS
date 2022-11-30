@@ -5,5 +5,5 @@ namespace initialize {
   void io();
   void peripherals();
   void power();
-  void debugServer();
+  void carreraServer();
 } // initialize

@@ -1,3 +1,3 @@
 #include "constants.h"
 
-DebugServer server;
+CarreraServer server;

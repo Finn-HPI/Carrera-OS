@@ -13,7 +13,7 @@ void setup()
   initialize::emergencyOTA();
   initialize::peripherals();
   initialize::power();
-  initialize::debugServer();
+  initialize::carreraServer();
   Serial.println("Setup done!");
 }
 
