@@ -54,9 +54,9 @@ var currentSpeed = 0;
 var speedInput = 0;
 
 // This handles the input Slider.
-setupMouseEvent();
+setupClickEvents();
 
-function setupMouseEvent() {
+function setupClickEvents() {
 	document.getElementById("speedInput").addEventListener("mousedown", handleMouseClick);
 	document.getElementById("speedInput").addEventListener("mousemove", handleMouseClick);
 	document.getElementById("speedInput").addEventListener("touchmove", handleTouchEvent);
@@ -65,18 +65,20 @@ function setupMouseEvent() {
 
 function handleMouseClick(event) {
 	if (!event.buttons || event.buttons != 1) return;
-	const yPos = event.offsetY;
-	const height = document.getElementById("speedInput").offsetHeight;
-	const value = clampPctValue(1-(yPos/height));
+	const value = calculateClickValue(event.y);
 	handleUserInput(value);
+}
+
+function calculateClickValue(yCoordinate) {
+	const inputFieldBounds = document.getElementById("speedInput").getBoundingClientRect();
+	const yPos = yCoordinate - inputFieldBounds.top;
+	const height = inputFieldBounds.height;
+	return clampPctValue(1-(yPos/height));
 }
 
 function handleTouchEvent(touchEvent) {
 	const touch = touchEvent.touches[0];
-	const inputFieldBounds = document.getElementById("speedInput").getBoundingClientRect();
-	const yPos = touch.clientY - inputFieldBounds.top;
-	const height = inputFieldBounds.height;
-	const value = clampPctValue(1-(yPos/height));
+	const value = calculateClickValue(touch.clientY);
 	handleUserInput(value);
 }
 
@@ -95,7 +97,7 @@ function clickLedButton() {
 	setTimeout(() => {display.classList.add("animate")}, 1);
 }
 
-function updateSpeedInputDisplay() { // TODO
+function updateSpeedInputDisplay() {
 	const input = document.getElementById("speedInput");
 	const inputValue = 100 * absoluteToPctSpeed(speedInput);
 	const actualValue = 100 * absoluteToPctSpeed(currentSpeed);
