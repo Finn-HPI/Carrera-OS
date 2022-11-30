@@ -9,3 +9,7 @@ Further, we want to add a camera to the vehicle to see a live videofeed from the
 ## Hardware
 
 ESP Lipo Dev-Kit: https://www.olimex.com/Products/IoT/ESP32/ESP32-DevKit-LiPo/open-source-hardware (9.95€)
+
+## Web-Interface
+
+After copying the HTML code from the .html file into the ESP file you need to replace all `%` characters with `%%` in order to escape them.
