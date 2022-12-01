@@ -12,7 +12,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"Carrera-Car"}, password{"CarreraMachtSpass"}, otaMode{false}, irl_enabled{false} {}
+CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"Carrera-Car1"}, password{"CarreraMachtSpass"}, otaMode{false}, irl_enabled{false} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
   socket.textAll(String(newSpeed));
@@ -43,12 +43,16 @@ void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client
       break;
     case WS_EVT_DISCONNECT:
       Serial.printf("WebSocket client #%u disconnected\n", client->id());
+      driving::setSpeed(0);
+      notifyClients(0);
       break;
     case WS_EVT_DATA:
       handleWebSocketMessage(arg, data, len);
       break;
     case WS_EVT_PONG:
     case WS_EVT_ERROR:
+      driving::setSpeed(0);
+      notifyClients(0);
       break;
   }
 }
