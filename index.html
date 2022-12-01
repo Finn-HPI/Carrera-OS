@@ -30,7 +30,8 @@ function setupClickEvents() {
 	document.getElementById("speedInput").addEventListener("mousedown", handleMouseClick);
 	document.getElementById("speedInput").addEventListener("mousemove", handleMouseClick);
 	document.getElementById("speedInput").addEventListener("touchmove", handleTouchEvent);
-	document.getElementById("ledButton").addEventListener("mousedown", clickLedButton);
+	document.getElementById("ledButton").addEventListener("click", clickLedButton);
+	document.getElementById("ledButton").addEventListener("touchstart", clickLedButton);
 }
 
 function handleMouseClick(event) {
@@ -60,7 +61,9 @@ function handleUserInput(pctValue) {
 	updateSpeed(absolute);
 }
 
-function clickLedButton() {
+function clickLedButton(event) {
+	if (event.pointerId && event.pointerId != 1) // Prevent action to execute twice on touch click
+		return;
 	activateLed();
 	const display = document.getElementById("ledDurationDisplay");
 	display.classList.remove("animate");
@@ -107,10 +110,12 @@ function initWebSocket() {
 }
 function onOpen(event) {
 	connected = true;
+	document.getElementById("speedInput").classList.add("connected");
 	console.log("Connection opened");
 }
 function onClose(event) {
 	connected = false;
+	document.getElementById("speedInput").classList.remove("connected");
 	console.log("Connection closed");
 	setTimeout(initWebSocket, 2000);
 }
@@ -123,7 +128,7 @@ function onLoad(event) {
 	initWebSocket();
 }
 function updateSpeed(value) {
-	console.log("Sending to websocket", value);
+	console.log("Sending:", value);
 	if (!connected) return;
 	websocket.send(value.toString());
 }
@@ -148,14 +153,19 @@ body {
 	--darkColor: gray;
 	--changeColor: rgb(225, 199, 93);
 	position: fixed;
-	left: 50%;
+	left: 10%;
 	top: 50%;
-	transform: translate(-50%, -50%);
-	width: 80vw;
-	height: 90vh;
+	transform: translateY(-50%);
+	width: 50%;
+	height: 90%;
 	border-radius: 10px;
 	background: var(--lightColor);
-	box-shadow: var(--shadow);
+	box-shadow: 0 0 10px 1px;
+	color: red;
+}
+
+#speedInput.connected {
+	color: green;
 }
 
 #speedValueDisplay {
@@ -164,6 +174,7 @@ body {
 	top: 50%;
 	font-size: 10rem;
 	transform: translate(-50%, -50%);
+	color: black;
 	-webkit-user-select: none; /* Safari */
 	-ms-user-select: none; /* IE 10 and IE 11 */
 	user-select: none; /* Standard syntax */
@@ -174,17 +185,18 @@ body {
 	right: 0px;
 	top: 0px;
 	height: 100vh;
-	width: 10vw;
+	width: 30vw;
 }
 
 #ledButton {
 	position: absolute;
-	bottom: 1em;
+	bottom: 5%;
 	left: 50%;
 	border-radius: 50%;
 	box-shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
 	transform: translate(-50%);
 	width: 80%;
+	max-width: 10rem;
 	aspect-ratio: 1;
 	background-color: var(--buttonColor);
 	box-shadow: var(--shadow);
@@ -200,7 +212,7 @@ body {
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
-	width: 10px;
+	width: 3rem;
 	height: 80%;
 }
 
