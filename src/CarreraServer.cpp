@@ -12,7 +12,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"}, otaMode{false}, irl_enabled{false} {}
+CarreraServer::CarreraServer(): m_server{80}, ssid{String(ESP.getEfuseMac()).c_str()}, socket("/ws"), password{"CarreraMachtSpass"}, otaMode{false}, irl_enabled{false} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
   socket.textAll(String(newSpeed));
@@ -89,7 +89,6 @@ void CarreraServer::emergencyOTA()
   Serial.begin(115200);
 
   WiFi.softAP(ssid, password);
-
   delay(100);
 
   ArduinoOTA.setHostname("Carrera-Vehicle");
