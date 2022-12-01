@@ -19,7 +19,6 @@ private:
 
 public:
   CarreraServer();
-  void connectToWifi();
   void setup();
   void initWebSocket();
   void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,

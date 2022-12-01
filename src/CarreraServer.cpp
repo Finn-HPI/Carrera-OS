@@ -66,22 +66,8 @@ String processor(const String& var){
   return String();
 }
 
-void CarreraServer::connectToWifi() {
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    ledcWrite(SLED_PWM_CHANNEL, 0);
-    delay(500);
-    ledcWrite(SLED_PWM_CHANNEL, 255);
-    delay(500);
-    Serial.println("Connecting to WiFi..");
-  }
-
-  // Print ESP Local IP Address
-  Serial.println(WiFi.localIP());
-}
-
 void CarreraServer::setup() {
-  connectToWifi();
+  WiFi.softAP(ssid, password);
 
   initWebSocket();
 
@@ -102,7 +88,7 @@ void CarreraServer::emergencyOTA()
 {
   Serial.begin(115200);
 
-  connectToWifi();
+  WiFi.softAP(ssid, password);
 
   delay(100);
 
