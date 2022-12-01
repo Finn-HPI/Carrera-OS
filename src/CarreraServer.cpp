@@ -12,7 +12,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer(): m_server{80}, ssid{String(ESP.getEfuseMac()).c_str()}, socket("/ws"), password{"CarreraMachtSpass"}, otaMode{false}, irl_enabled{false} {}
+CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"Carrera-Car"}, password{"CarreraMachtSpass"}, otaMode{false}, irl_enabled{false} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
   socket.textAll(String(newSpeed));
