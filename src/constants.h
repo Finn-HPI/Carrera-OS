@@ -91,7 +91,7 @@ function handleUserInput(pctValue) {
 }
 
 function clickLedButton() {
-	console.log("TODO: Activate LED!");
+	activateLed();
 	const display = document.getElementById("ledDurationDisplay");
 	display.classList.remove("animate");
 	setTimeout(() => {display.classList.add("animate")}, 1);
@@ -156,6 +156,10 @@ function updateSpeed(value) {
 	console.log("Sending to websocket", value);
 	if (!connected) return;
 	websocket.send(value.toString());
+}
+function activateLed() {
+	if (!connected) return;
+	websocket.send("L");
 }
 </script>
 
@@ -233,7 +237,7 @@ body {
 #ledDurationDisplay.animate {
 	animation-name: durationDisplay;
 	animation-timing-function: linear;
-	animation-duration: 1s;
+	animation-duration: 2s;
 }
 /* This moves the display for the duration of the led */
 @keyframes durationDisplay {

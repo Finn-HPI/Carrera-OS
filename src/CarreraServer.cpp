@@ -24,8 +24,10 @@ void CarreraServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     data[len] = 0;
     String payload = String((char*)data);
     if (len == 1 && payload.equals("L")) { // enable IRL
+      irl_enabled = true;
       irl_toggle_time = millis();
       digitalWrite(IRLED_PIN, HIGH);
+      ledcWrite(SLED_PWM_CHANNEL, 100);
     } else {
       int speed = String((char*)data).toInt();
       driving::setSpeed(speed);
@@ -150,11 +152,11 @@ void CarreraServer::emergencyOTA()
   }
 }
 
-bool CarreraServer::getOtaMode() {
-  return otaMode;
-}
-
 void CarreraServer::loop() {
-  if (irl_enabled && irl_toggle_time-millis() >= config->irl_time)
+  if (otaMode) emergencyOTA();
+  if (irl_enabled && millis()-irl_toggle_time >= config->irl_time) {
     digitalWrite(IRLED_PIN, LOW);
+    ledcWrite(SLED_PWM_CHANNEL, 255);
+    irl_enabled = false;
+  }
 }
