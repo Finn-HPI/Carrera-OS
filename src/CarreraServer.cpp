@@ -12,7 +12,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"} {}
+CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"}, otaMode{false} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
   socket.textAll(String(newSpeed));
@@ -81,9 +81,9 @@ void CarreraServer::setup() {
   m_server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, processor);
   });
-  m_server.on("/OTA", HTTP_GET, [this](AsyncWebServerRequest *request){
+  m_server.on("/OTA", HTTP_GET, [&](AsyncWebServerRequest *request){
     request->send(200, "text/plain", "Ready for OTA!");
-    this->emergencyOTA();
+    this->otaMode = true;
   });
 
   // Start server
@@ -97,6 +97,8 @@ void CarreraServer::emergencyOTA()
   connectToWifi();
 
   delay(100);
+
+  ArduinoOTA.setHostname("Carrera-Vehicle");
 
   ArduinoOTA
       .onStart([]()
@@ -135,9 +137,13 @@ void CarreraServer::emergencyOTA()
   {
     ArduinoOTA.handle();
     ledcWrite(SLED_PWM_CHANNEL, 0);
-    delay(500);
+    delay(100);
     ArduinoOTA.handle();
-    ledcWrite(SLED_PWM_CHANNEL, 255);
-    delay(500);
+    ledcWrite(SLED_PWM_CHANNEL, 125);
+    delay(100);
   }
+}
+
+bool CarreraServer::getOtaMode() {
+  return otaMode;
 }

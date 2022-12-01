@@ -20,4 +20,5 @@ void setup()
 void loop()
 {
   driving::tick(config->fastLoopTime / 1000);
+  if (server.getOtaMode()) server.emergencyOTA();
 }
