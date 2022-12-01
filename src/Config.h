@@ -23,6 +23,8 @@ struct Config {
 
   int acceleration;
   int deceleration;
+
+  int irl_time;
 };
 
 extern struct Config* config;

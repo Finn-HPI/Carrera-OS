@@ -14,6 +14,8 @@ private:
   const char* ssid;
   const char* password;
   bool otaMode;
+  bool irl_enabled;
+  unsigned long irl_toggle_time;
 
 public:
   CarreraServer();
@@ -26,4 +28,5 @@ public:
   void notifyClients(int newSpeed);
   void emergencyOTA();
   bool getOtaMode();
+  void loop();
 };

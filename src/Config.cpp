@@ -4,7 +4,7 @@ Config initialConfig {
   .calibrationSpeed = 65,
 
   .fullSpeed = 125,
-  .minSpeed = 1,
+  .minSpeed = 10,
 
   .drivenLength = 1.0,
 
@@ -22,7 +22,9 @@ Config initialConfig {
   .maxCurve = 5, 
 
  .acceleration = 255 * 4,
- .deceleration = 255
+ .deceleration = 255,
+
+ .irl_time = 2000
 };
 
 // Config initialConfig {

@@ -12,7 +12,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"}, otaMode{false} {}
+CarreraServer::CarreraServer(): m_server{80}, socket("/ws"), ssid{"CarreraHotspot"}, password{"CarreraMachtSpass"}, otaMode{false}, irl_enabled{false} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
   socket.textAll(String(newSpeed));
@@ -22,9 +22,15 @@ void CarreraServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
-    int speed = String((char*)data).toInt();
-    driving::setSpeed(speed);
-    notifyClients(speed);
+    String payload = String((char*)data);
+    if (len == 1 && payload.equals("L")) { // enable IRL
+      irl_toggle_time = millis();
+      digitalWrite(IRLED_PIN, HIGH);
+    } else {
+      int speed = String((char*)data).toInt();
+      driving::setSpeed(speed);
+      notifyClients(speed);
+    }
   }
 }
 void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
@@ -146,4 +152,9 @@ void CarreraServer::emergencyOTA()
 
 bool CarreraServer::getOtaMode() {
   return otaMode;
+}
+
+void CarreraServer::loop() {
+  if (irl_enabled && irl_toggle_time-millis() >= config->irl_time)
+    digitalWrite(IRLED_PIN, LOW);
 }
