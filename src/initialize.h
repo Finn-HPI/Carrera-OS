@@ -6,4 +6,5 @@ namespace initialize {
   void peripherals();
   void power();
   void carreraServer();
+  void storages();
 } // initialize

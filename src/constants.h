@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CarreraServer.h"
+#include "Vector.h"
 
 using namespace std;
 
@@ -26,6 +27,8 @@ using namespace std;
 #define SLED_PWM_CHANNEL 2
 
 extern CarreraServer server;
+extern Vector<float> vin_energy;
+extern Vector<float> capacitor_energy;
 
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>

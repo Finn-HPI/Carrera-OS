@@ -83,6 +83,15 @@ void CarreraServer::setup() {
     request->send(200, "text/plain", "Ready for OTA!");
     this->otaMode = true;
   });
+  m_server.on("/power", HTTP_GET, [&](AsyncWebServerRequest *request){
+    String result = "vin\tcapacitor\n";
+    for (auto i = 0; i < vin_energy.size() && i < capacitor_energy.size(); i++) {
+      result += String(vin_energy.at(i)) + "\t" + String(capacitor_energy.at(i)) + "\n";
+    }
+    request->send(200, "text/plain", result);
+    vin_energy.clear();
+    capacitor_energy.clear();
+  });
 
   // Start server
   m_server.begin();
