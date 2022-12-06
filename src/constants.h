@@ -33,7 +33,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="06.12_12:12">
+	<meta name="version" content="06.12_12:48">
 </head>
 <body>
 	<div id="speedInput">
@@ -45,9 +45,16 @@ const char index_html[] PROGMEM = R"rawliteral(
 		<div id="ledDurationDisplay"></div>
 		<div id="ledButton"></div>
 	</div>
+	<div id="stopGoButton" class="stop" hidden></div>
+	<span id="versionDisplay"></span>
 </body>
 
 <script>
+function displayVersion() {
+	const version = document.querySelector("meta[name='version']").content;
+	document.getElementById("versionDisplay").innerHTML = version;
+}
+displayVersion();
 // Variables and constants
 const min = 0;
 const max = 130;
@@ -63,6 +70,8 @@ function setupClickEvents() {
 	document.getElementById("speedInput").addEventListener("touchmove", handleTouchEvent);
 	document.getElementById("ledButton").addEventListener("click", clickLedButton);
 	document.getElementById("ledButton").addEventListener("touchstart", clickLedButton);
+	document.getElementById("stopGoButton").addEventListener("click", clickStopGoButton);
+	document.getElementById("stopGoButton").addEventListener("touchstart", clickStopGoButton);
 }
 
 function handleMouseClick(event) {
@@ -99,6 +108,12 @@ function clickLedButton(event) {
 	const display = document.getElementById("ledDurationDisplay");
 	display.classList.remove("animate");
 	setTimeout(() => {display.classList.add("animate")}, 1);
+}
+
+function clickStopGoButton(event) {
+	if (event.pointerId && event.pointerId != 1) // Prevent action to execute twice on touch click
+		return;
+	console.log("Do something");
 }
 
 function updateSpeedInputDisplay() {
@@ -159,19 +174,24 @@ function onLoad(event) {
 	initWebSocket();
 }
 function updateSpeed(value) {
-	console.log("Sending:", value);
-	if (!connected) return;
-	websocket.send(value.toString());
+	sendViaWebsocket(value.toString());
 }
 function activateLed() {
 	if (!connected) return;
 	websocket.send("L");
+}
+function sendViaWebsocket(message) {
+	if (!connected) return;
+	console.log("Sending:", message);
+	websocket.send(message);
 }
 </script>
 
 <style>
 :root {
 	--buttonColor: #3D7EAA;
+	--stopButtonColor: rgb(187, 57, 57);
+	--goButtonColor: rgb(32, 107, 32);
 	--shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
 }
 body {
@@ -260,6 +280,32 @@ body {
 	100%% {
 		background-position: 0%% 0%%;
 	}
+}
+
+#stopGoButton {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	margin: 1rem;
+	border-radius: 40%%;
+	box-shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
+	width: 10%%;
+	aspect-ratio: 1;
+	background-color: var(--goButtonColor);
+	box-shadow: var(--shadow);
+}
+
+.stop {
+	background-color: var(--stopButtonColor) !important;
+}
+
+#versionDisplay{
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	margin: 2px;
+	color: lightgray;
+	opacity: 0.25;
 }
 </style>
 </html>
