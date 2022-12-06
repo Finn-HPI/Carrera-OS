@@ -39,10 +39,8 @@ void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client
              void *arg, uint8_t *data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
       break;
     case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
       driving::setSpeed(0);
       notifyClients(0);
       break;
@@ -63,7 +61,6 @@ void CarreraServer::initWebSocket() {
 }
 
 String processor(const String& var){
-  Serial.println(var);
   if(var == "STATE"){
     return String(driving::getSpeed());
   }
@@ -82,6 +79,9 @@ void CarreraServer::setup() {
   m_server.on("/OTA", HTTP_GET, [&](AsyncWebServerRequest *request){
     request->send(200, "text/plain", "Ready for OTA!");
     this->otaMode = true;
+  });
+  m_server.on("/uptime", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", String(millis()));
   });
 
   // Start server

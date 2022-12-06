@@ -33,7 +33,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="06.12_12:48">
+	<meta name="version" content="06.12_16:46">
 </head>
 <body>
 	<div id="speedInput">
