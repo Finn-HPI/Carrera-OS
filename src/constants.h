@@ -8,13 +8,12 @@ using namespace std;
 #define SLED_PIN 26
 #define IRLED_PIN 18
 
-
 #define ADC_PIN 34
 #define TRK_PIN 32
 
 #define INTERRUPT_PIN 13
 
-//I2C interface
+// I2C interface
 #define SDA 21
 #define SCL 22
 

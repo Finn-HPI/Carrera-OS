@@ -1,31 +1,15 @@
 #pragma once
 
 struct Config {
-  int calibrationSpeed;
+    int full_speed;
+    int min_speed;
 
-  int fullSpeed;
-  int minSpeed;
-  
-  float drivenLength;
+    int loop_time;
 
-  float segmentThreshold;
-  float curveThreshold;
-  
-  float diffThreshold;
-  
-  int numPreviews;
-  int previewOffset;
+    int acceleration;
+    int deceleration;
 
-  int slowLoopTime;
-  int fastLoopTime;
-  int loop_time;
-
-  float maxCurve;
-
-  int acceleration;
-  int deceleration;
-
-  int irl_time;
+    int irl_time;
 };
 
 extern struct Config* config;

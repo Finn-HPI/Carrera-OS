@@ -1,10 +1,10 @@
 #pragma once
 
 namespace driving {
-  void setSpeed(int newSpeed);
+void setSpeed(int newSpeed);
 
-  // getSpeed is a guess of the real speed we're currently driving
-  int getSpeed();
+// getSpeed is a guess of the real speed we're currently driving
+int getSpeed();
 
-  void tick(float milliseconds);
-} // driving
+void tick(float milliseconds);
+}  // namespace driving
