@@ -68,13 +68,6 @@ void CarreraServer::initWebSocket() {
     m_server.addHandler(&socket);
 }
 
-String processor(const String &var) {
-    if (var == "STATE") {
-        return String(driving::getSpeed());
-    }
-    return String();
-}
-
 void CarreraServer::setup() {
     WiFi.softAP(ssid, password);
 
@@ -82,7 +75,7 @@ void CarreraServer::setup() {
 
     // Route for root / web page
     m_server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send_P(200, "text/html", index_html, processor);
+        request->send_P(200, "text/html", index_html);
     });
     m_server.on("/OTA", HTTP_GET, [&](AsyncWebServerRequest *request) {
         request->send(200, "text/plain", "Ready for OTA!");
