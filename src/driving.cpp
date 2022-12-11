@@ -18,16 +18,16 @@ void accelerate(uint32_t duty) {
 }
 
 void driving::tick(float milliseconds) {
-    if (real_speed > target_speed) {
+    if (real_speed < target_speed) {
         accelerate(255);
         real_speed += config->acceleration * (milliseconds / 1000);
-        if (target_speed <= real_speed) {
+        if (real_speed >= target_speed) {
             real_speed = target_speed;
         }
-    } else if (target_speed < target_speed) {
+    } else if (real_speed > target_speed) {
         decelerate(255);
         real_speed -= config->deceleration * (milliseconds / 1000);
-        if (real_speed >= target_speed) {
+        if (real_speed <= target_speed) {
             real_speed = target_speed;
         }
     } else {  // target_speed and real_speed are equal
