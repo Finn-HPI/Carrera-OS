@@ -3,7 +3,6 @@
 namespace initialize {
   void emergencyOTA();
   void io();
-  void peripherals();
   void power();
   void carreraServer();
 } // initialize

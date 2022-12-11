@@ -40,29 +40,9 @@ void initialize::io() {
   pinMode(ADC_PIN, INPUT);
 }
 
-void initialize::peripherals() {
-  // Wire.begin(SDA, SCL);
-
-  // Serial.begin(115200);
-  
-  // if (!mpu.begin()) {
-  //   Serial.println("Sensor init failed");
-  //   while (1)
-  //     yield();
-  // }
-  // Serial.println("Found MPU-6050");
-
-  // Wire.setClock(400000);
-
-  // //wait for MPU to not freak out
-  // delay(500);
-}
-
 void initialize::power() {
    // reduce power consumption
   setCpuFrequencyMhz(160);
-  Serial.print("CPU Freq: ");
-  Serial.println(getCpuFrequencyMhz());
 }
 
 void initialize::carreraServer() {  

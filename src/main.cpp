@@ -7,14 +7,10 @@
 
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println("Start setup...");
   initialize::io();
   initialize::emergencyOTA();
-  initialize::peripherals();
   initialize::power();
   initialize::carreraServer();
-  Serial.println("Setup done!");
 }
 
 void loop()
