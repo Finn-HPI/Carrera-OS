@@ -1,5 +1,3 @@
-#include "Arduino.h"
-#include "WiFi.h"
 #include "constants.h"
 #include "driving.h"
 #include "initialize.h"
