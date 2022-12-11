@@ -16,5 +16,5 @@ void setup()
 void loop()
 {
   server.loop();
-  driving::tick(config->fastLoopTime / 1000);
+  driving::tick(config->loop_time);
 }

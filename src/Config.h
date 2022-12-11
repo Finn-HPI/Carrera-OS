@@ -18,6 +18,7 @@ struct Config {
 
   int slowLoopTime;
   int fastLoopTime;
+  int loop_time;
 
   float maxCurve;
 

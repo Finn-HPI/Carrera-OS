@@ -17,7 +17,8 @@ Config initialConfig {
   .previewOffset = 5,
 
   .slowLoopTime = 16666,
-  .fastLoopTime = 6000,
+  .fastLoopTime = 6,
+  .loop_time = 6,
 
   .maxCurve = 5, 
 
