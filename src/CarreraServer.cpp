@@ -73,7 +73,6 @@ void CarreraServer::setup() {
 
     initWebSocket();
 
-    // Route for root / web page
     m_server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send_P(200, "text/html", index_html);
     });
@@ -85,7 +84,6 @@ void CarreraServer::setup() {
         request->send(200, "text/plain", String(millis()));
     });
 
-    // Start server
     m_server.begin();
 }
 
