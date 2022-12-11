@@ -24,18 +24,18 @@ void CarreraServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
         data[len] = 0;
         String command = String((char *)data);
-        handlePayload(command);
+        handleCommand(command);
     }
 }
 
 void CarreraServer::handleCommand(String command) {
     // IR-LED Command
-    if (payload.startsWith("L") && payload.length() == 1) {
+    if (command.startsWith("L") && command.length() == 1) {
         enableIRLed();
         return;
     }
     // Speed Command
-    int speed = payload.toInt();
+    int speed = command.toInt();
     driving::setSpeed(speed);
     notifyClients(speed);
 }
