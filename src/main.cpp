@@ -1,4 +1,3 @@
-#include "constants.h"
 #include "driving.h"
 #include "initialize.h"
 
@@ -11,5 +10,5 @@ void setup() {
 
 void loop() {
     server.loop();
-    driving::tick(config->loop_time);
+    driving::tick();
 }

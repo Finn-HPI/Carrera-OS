@@ -1,7 +1,5 @@
 #include "driving.h"
 
-#include "constants.h"
-
 float target_speed = 0;
 float real_speed = 0;
 
