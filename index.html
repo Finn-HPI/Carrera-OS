@@ -15,8 +15,9 @@
 		<div id="ledDurationDisplay"></div>
 		<div id="ledButton"></div>
 	</div>
-	<div id="stopGoButton" class="stop" hidden></div>
+	<div id="stopGoButton" class="stop"></div>
 	<span id="versionDisplay"></span>
+	<button onclick="toggleWsMode()">Toggle WS Mode</button>
 </body>
 
 <script>
@@ -83,6 +84,7 @@ function clickLedButton(event) {
 function clickStopGoButton(event) {
 	if (event.pointerId && event.pointerId != 1) // Prevent action to execute twice on touch click
 		return;
+	exportTimes();
 	console.log("Do something");
 }
 
@@ -138,13 +140,29 @@ function onClose(event) {
 function onMessage(event) {
 	console.log("Recieving: ", event);
 	currentSpeed = event.data;
+	measureReceiveTime(event.data);
 	updateSpeedInputDisplay();
 }
 function onLoad(event) {
 	initWebSocket();
 }
 function updateSpeed(value) {
-	sendViaWebsocket(value.toString());
+	if (useWebsocket) {
+		// Via websocket:
+		sendViaWebsocket(value.toString());
+	} else {
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.onreadystatechange = function() { 
+			if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+				const json = JSON.parse(xmlHttp.responseText);
+				console.log(json);
+				measureReceiveTime(json[v].toString());
+			}
+		}
+		xmlHttp.open("GET", `192.168.4.1/speed?v=${value}`, true);
+		xmlHttp.send(null);
+	}
+	timeDict[value.toString()] = Date.now();
 }
 function activateLed() {
 	if (!connected) return;
@@ -154,6 +172,34 @@ function sendViaWebsocket(message) {
 	if (!connected) return;
 	console.log("Sending:", message);
 	websocket.send(message);
+}
+
+// Time measurements:
+var timeDict = {};
+var times = [];
+var useWebsocket = true;
+
+function exportTimes() {
+	console.log(times);
+	const sum = times.reduce((a, b) => a + b, 0);
+	console.log("Total entries:", times.length);
+	console.log("Avg:", sum / times.length);
+	console.log("Min:", Math.min(... times));
+	console.log("Max:", Math.max(... times));
+}
+
+function measureReceiveTime(message) {
+	if (message in timeDict) {
+		const sentAt = timeDict[message];
+		const time = Date.now() - sentAt;
+		times.push(time);
+		delete timeDict[message];
+	}
+}
+
+function toggleWsMode() {
+	useWebsocket = !useWebsocket;
+	console.log("WS:", useWebsocket);
 }
 </script>
 

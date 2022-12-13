@@ -32,7 +32,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="06.12_16:46">
+	<meta name="version" content="13.12_16:58">
 </head>
 <body>
 	<div id="speedInput">
@@ -44,8 +44,9 @@ const char index_html[] PROGMEM = R"rawliteral(
 		<div id="ledDurationDisplay"></div>
 		<div id="ledButton"></div>
 	</div>
-	<div id="stopGoButton" class="stop" hidden></div>
+	<div id="stopGoButton" class="stop"></div>
 	<span id="versionDisplay"></span>
+	<button onclick="toggleWsMode()">Toggle WS Mode</button>
 </body>
 
 <script>
@@ -112,6 +113,7 @@ function clickLedButton(event) {
 function clickStopGoButton(event) {
 	if (event.pointerId && event.pointerId != 1) // Prevent action to execute twice on touch click
 		return;
+	exportTimes();
 	console.log("Do something");
 }
 
@@ -121,9 +123,9 @@ function updateSpeedInputDisplay() {
 	const actualValue = 100 * absoluteToPctSpeed(currentSpeed);
 	document.getElementById("speedValueDisplay").innerHTML = currentSpeed;
 	if (actualValue < inputValue) {
-		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%%, var(--darkColor) ${actualValue}%%, var(--changeColor) ${actualValue}%%, var(--changeColor) ${inputValue}%%, var(--lightColor) ${inputValue}%%, var(--lightColor) 100%%)`;
+		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${actualValue}%, var(--changeColor) ${actualValue}%, var(--changeColor) ${inputValue}%, var(--lightColor) ${inputValue}%, var(--lightColor) 100%)`;
 	} else {
-		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%%, var(--darkColor) ${inputValue}%%, var(--changeColor) ${inputValue}%%, var(--changeColor) ${actualValue}%%, var(--lightColor) ${actualValue}%%, var(--lightColor) 100%%)`;
+		input.style.background = `linear-gradient(0deg, var(--darkColor) 0%, var(--darkColor) ${inputValue}%, var(--changeColor) ${inputValue}%, var(--changeColor) ${actualValue}%, var(--lightColor) ${actualValue}%, var(--lightColor) 100%)`;
 	}
 	
 }
@@ -167,13 +169,29 @@ function onClose(event) {
 function onMessage(event) {
 	console.log("Recieving: ", event);
 	currentSpeed = event.data;
+	measureReceiveTime(event.data);
 	updateSpeedInputDisplay();
 }
 function onLoad(event) {
 	initWebSocket();
 }
 function updateSpeed(value) {
-	sendViaWebsocket(value.toString());
+	if (useWebsocket) {
+		// Via websocket:
+		sendViaWebsocket(value.toString());
+	} else {
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.onreadystatechange = function() { 
+			if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+				const json = JSON.parse(xmlHttp.responseText);
+				console.log(json);
+				measureReceiveTime(json[v].toString());
+			}
+		}
+		xmlHttp.open("GET", `192.168.4.1/speed?v=${value}`, true);
+		xmlHttp.send(null);
+	}
+	timeDict[value.toString()] = Date.now();
 }
 function activateLed() {
 	if (!connected) return;
@@ -183,6 +201,34 @@ function sendViaWebsocket(message) {
 	if (!connected) return;
 	console.log("Sending:", message);
 	websocket.send(message);
+}
+
+// Time measurements:
+var timeDict = {};
+var times = [];
+var useWebsocket = true;
+
+function exportTimes() {
+	console.log(times);
+	const sum = times.reduce((a, b) => a + b, 0);
+	console.log("Total entries:", times.length);
+	console.log("Avg:", sum / times.length);
+	console.log("Min:", Math.min(... times));
+	console.log("Max:", Math.max(... times));
+}
+
+function measureReceiveTime(message) {
+	if (message in timeDict) {
+		const sentAt = timeDict[message];
+		const time = Date.now() - sentAt;
+		times.push(time);
+		delete timeDict[message];
+	}
+}
+
+function toggleWsMode() {
+	useWebsocket = !useWebsocket;
+	console.log("WS:", useWebsocket);
 }
 </script>
 
@@ -203,11 +249,11 @@ body {
 	--darkColor: gray;
 	--changeColor: rgb(225, 199, 93);
 	position: fixed;
-	left: 10%%;
-	top: 50%%;
-	transform: translateY(-50%%);
-	width: 50%%;
-	height: 90%%;
+	left: 10%;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 50%;
+	height: 90%;
 	border-radius: 10px;
 	background: var(--lightColor);
 	box-shadow: 0 0 10px 1px;
@@ -220,10 +266,10 @@ body {
 
 #speedValueDisplay {
 	position: absolute;
-	left: 50%%;
-	top: 50%%;
+	left: 50%;
+	top: 50%;
 	font-size: 10rem;
-	transform: translate(-50%%, -50%%);
+	transform: translate(-50%, -50%);
 	color: black;
 	-webkit-user-select: none; /* Safari */
 	-ms-user-select: none; /* IE 10 and IE 11 */
@@ -240,12 +286,12 @@ body {
 
 #ledButton {
 	position: absolute;
-	bottom: 5%%;
-	left: 50%%;
-	border-radius: 50%%;
+	bottom: 5%;
+	left: 50%;
+	border-radius: 50%;
 	box-shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
-	transform: translate(-50%%);
-	width: 80%%;
+	transform: translate(-50%);
+	width: 80%;
 	max-width: 10rem;
 	aspect-ratio: 1;
 	background-color: var(--buttonColor);
@@ -256,14 +302,14 @@ body {
 	--activeColor: var(--buttonColor);
 	--inactiveColor: rgba(211, 211, 211, 0);
 	position: absolute;
-	background: linear-gradient(to top, var(--activeColor) 0%%, var(--activeColor) 50%%, var(--inactiveColor) 50%%, var(--inactiveColor) 100%%);
-	background-size: 100%% 200%%; /* For animating the background */
+	background: linear-gradient(to top, var(--activeColor) 0%, var(--activeColor) 50%, var(--inactiveColor) 50%, var(--inactiveColor) 100%);
+	background-size: 100% 200%; /* For animating the background */
 	border-radius: 5px;
-	left: 50%%;
-	top: 50%%;
-	transform: translate(-50%%, -50%%);
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
 	width: 3rem;
-	height: 80%%;
+	height: 80%;
 }
 
 #ledDurationDisplay.animate {
@@ -273,11 +319,11 @@ body {
 }
 /* This moves the display for the duration of the led */
 @keyframes durationDisplay {
-	0%% {
-		background-position: 0%% 100%%; 
+	0% {
+		background-position: 0% 100%; 
 	}
-	100%% {
-		background-position: 0%% 0%%;
+	100% {
+		background-position: 0% 0%;
 	}
 }
 
@@ -286,9 +332,9 @@ body {
 	top: 0px;
 	right: 0px;
 	margin: 1rem;
-	border-radius: 40%%;
+	border-radius: 40%;
 	box-shadow: 0 0 10px 1px rgba(23, 23, 23, 0.2);
-	width: 10%%;
+	width: 10%;
 	aspect-ratio: 1;
 	background-color: var(--goButtonColor);
 	box-shadow: var(--shadow);

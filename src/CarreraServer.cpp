@@ -13,7 +13,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer() : m_server{80}, socket("/ws"), ssid{"Carrera-Car1"}, password{"CarreraMachtSpass"}, ota_mode{false}, irl_enabled{false} {}
+CarreraServer::CarreraServer() : m_server{80}, socket("/ws"), ssid{"Carrera-Car2"}, password{"CarreraMachtSpass"}, ota_mode{false}, irl_enabled{false} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
     socket.textAll(String(newSpeed));
@@ -82,6 +82,11 @@ void CarreraServer::setup() {
     });
     m_server.on("/uptime", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(200, "text/plain", String(millis()));
+    });
+    m_server.on("/speed", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        AsyncWebParameter* p = request->getParam(0);
+        handleCommand(p->value());
+        request->send(200, "application/json", "{" + p->name() + ":" + p->value() + "}");
     });
 
     m_server.begin();
