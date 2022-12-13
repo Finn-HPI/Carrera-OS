@@ -86,7 +86,7 @@ void CarreraServer::setup() {
     m_server.on("/speed", HTTP_GET, [&](AsyncWebServerRequest *request) {
         AsyncWebParameter* p = request->getParam(0);
         handleCommand(p->value());
-        request->send(200, "application/json", "{" + p->name() + ":" + p->value() + "}");
+        request->send(200, "application/json", "{ \"" + p->name() + "\" : " + p->value() + " }");
     });
 
     m_server.begin();

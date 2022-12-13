@@ -32,7 +32,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="13.12_16:58">
+	<meta name="version" content="13.12_17:12">
 </head>
 <body>
 	<div id="speedInput">
@@ -185,10 +185,10 @@ function updateSpeed(value) {
 			if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 				const json = JSON.parse(xmlHttp.responseText);
 				console.log(json);
-				measureReceiveTime(json[v].toString());
+				measureReceiveTime(json["v"].toString());
 			}
 		}
-		xmlHttp.open("GET", `192.168.4.1/speed?v=${value}`, true);
+		xmlHttp.open("GET", `http://192.168.4.1/speed?v=${value}`, true);
 		xmlHttp.send(null);
 	}
 	timeDict[value.toString()] = Date.now();
