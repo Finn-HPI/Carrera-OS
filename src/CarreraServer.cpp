@@ -30,7 +30,7 @@ void CarreraServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 
 void CarreraServer::handleCommand(String command) {
     // IR-LED Command
-    if (command.startsWith("L") && command.length() == 1) {
+    if (command.length() == 1 && command.startsWith("L")) {
         enableIRLed();
         return;
     }
