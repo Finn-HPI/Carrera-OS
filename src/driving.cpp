@@ -16,6 +16,10 @@ void accelerate(uint32_t duty) {
 }
 
 void driving::tick(float milliseconds) {
+    if (!config->instant_acceleration) {
+        accelerate(target_speed);
+        return;
+    }
     if (real_speed < target_speed) {
         accelerate(255);
         real_speed += config->acceleration * (milliseconds / 1000);

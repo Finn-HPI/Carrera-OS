@@ -10,6 +10,8 @@ struct Config {
     int deceleration;
 
     int irl_time;
+
+    bool instant_acceleration;
 };
 
 extern struct Config* config;

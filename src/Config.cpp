@@ -9,6 +9,8 @@ Config initialConfig{
     .acceleration = 255 * 4,
     .deceleration = 255,
 
-    .irl_time = 2000};
+    .irl_time = 2000,
+    
+    .instant_acceleration = false};
 
 Config* config = &initialConfig;
