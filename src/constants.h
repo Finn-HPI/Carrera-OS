@@ -32,7 +32,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="10.01_13:00">
+	<meta name="version" content="10.01_15:30">
 </head>
 <body>
 	<div id="speedInput">
@@ -58,7 +58,7 @@ displayVersion();
 const min = 0;
 const max = 130;
 var currentSpeed = 0;
-var speedInput = 0;
+var speedInput = 0.0;
 
 // This handles the input Slider.
 setupClickEvents();
@@ -93,11 +93,16 @@ function handleTouchEvent(touchEvent) {
 }
 
 function handleUserInput(pctValue) {
+	pctValue = clampPctValue(pctValue);
+	if (speedInput == pctValue) return; // No change happened, we can ignore this
+	speedInput = pctValue;
 	const absolute = convertPctToAbsoluteSpeed(pctValue);
-	if (speedInput == absolute) return; // No change happened, we can ignore this
-	speedInput = absolute;
 	updateSpeedInputDisplay();
 	updateSpeed(absolute);
+}
+
+function handleAbsoluteInput(absoluteValue) {
+	handleUserInput(absoluteToPctSpeed(absoluteValue));
 }
 
 function clickLedButton(event) {
@@ -114,7 +119,7 @@ function clickStopGoButton(event) {
 
 function updateSpeedInputDisplay() {
 	const input = document.getElementById("speedInput");
-	const inputValue = 100 * absoluteToPctSpeed(speedInput);
+	const inputValue = 100 * speedInput;
 	const actualValue = 100 * absoluteToPctSpeed(currentSpeed);
 	document.getElementById("speedValueDisplay").innerHTML = currentSpeed;
 	if (actualValue < inputValue) {
@@ -196,14 +201,19 @@ function connecthandler(e) {
 }
 
 function addgamepad(gamepad) {
-	if (gamepad.mapping != "standard") {
-		window.alert(`Gamepad mapping is ${gamepad.mapping} instead of "standard". This is currently not supported`);
-		return;
-	}
+	// if (gamepad.mapping != "standard") {
+	// 	console.warn("New gamepad:", gamepad);
+	// 	window.alert(`Gamepad mapping is ${gamepad.mapping} instead of "standard". This is currently not supported`);
+	// 	return;
+	// }
 	controller = gamepad;
 	console.log("New gamepad connected:", gamepad);
 	requestAnimationFrame(updateStatus);
 }
+
+const rollSlow = 0.001;
+const breakingPower = 0.03;
+const gasPower = 0.05;
 
 function updateStatus() {
 	if (!haveEvents) {
@@ -215,10 +225,15 @@ function updateStatus() {
 		activateLed();
 	const speedButtonInput = controller.buttons[7];
 	const breakButtonInput = controller.buttons[6];
-	if (speedButtonInput.pressed)
-		handleUserInput(speedButtonInput.value);
-	else
-		handleUserInput(0);
+
+	if (breakButtonInput.pressed) { // active breaking
+		const decleration = breakButtonInput.value;
+		handleUserInput(speedInput - decleration * breakingPower);
+	} else if (speedButtonInput.pressed && (speedInput < speedButtonInput.value)) { // active powering
+		handleUserInput(speedInput + (speedButtonInput.value - speedInput) * gasPower);
+	} else { // decelerate slowly
+		handleUserInput(speedInput  - rollSlow);
+	}
 
 	requestAnimationFrame(updateStatus);
 }
