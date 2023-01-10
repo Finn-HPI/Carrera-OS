@@ -137,12 +137,12 @@ void CarreraServer::emergencyOTA() {
 void CarreraServer::enableIRLed() {
     irl_enabled = true;
     irl_toggle_time = millis();
-    digitalWrite(IRLED_PIN, HIGH);
+    ledcWrite(IRLED_PWM_CHANNEL, 255);
 }
 
 void CarreraServer::updateIRLed() {
     if (millis() - irl_toggle_time >= config->irl_time) {
-        digitalWrite(IRLED_PIN, LOW);
+        ledcWrite(IRLED_PWM_CHANNEL, 0);
         irl_enabled = false;
     }
 }

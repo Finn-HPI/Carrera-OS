@@ -23,6 +23,7 @@ using namespace std;
 #define MOTOR_PWM_CHANNEL 0
 #define MOTOR_BRK_PWM_CHANNEL 1
 #define SLED_PWM_CHANNEL 2
+#define IRLED_PWM_CHANNEL 3
 
 extern CarreraServer server;
 
