@@ -32,7 +32,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="10.01_16:00">
+	<meta name="version" content="10.01_16:15">
 </head>
 <body>
 	<div id="speedInput">
@@ -90,8 +90,14 @@ function setupClickEvents() {
 loadDefaultParams();
 
 function loadDefaultParams() {
+	if (localStorage.getItem("rollSlow"))
+		rollSlow = localStorage.getItem("rollSlow");
 	document.getElementById("paramRoll").value = rollSlow;
+	if (localStorage.getItem("decelerationPower"))
+		decelerationPower = localStorage.getItem("decelerationPower");
 	document.getElementById("paramDeceleration").value = decelerationPower;
+	if (localStorage.getItem("accelerationPower"))
+		accelerationPower = localStorage.getItem("accelerationPower");
 	document.getElementById("paramAcceleration").value = accelerationPower;
 }
 
@@ -100,6 +106,9 @@ function changeParams(e) {
 	rollSlow = document.getElementById("paramRoll").value;
 	decelerationPower = document.getElementById("paramDeceleration").value;
 	accelerationPower = document.getElementById("paramAcceleration").value;
+	localStorage.setItem("rollSlow", rollSlow);
+	localStorage.setItem("decelerationPower", decelerationPower);
+	localStorage.setItem("accelerationPower", accelerationPower);
 	// Visual confirmation of save:
 	const notification = document.getElementById("paramNotification");
 	notification.className = "show";
