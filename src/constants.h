@@ -32,7 +32,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="10.01_15:30">
+	<meta name="version" content="10.01_16:00">
 </head>
 <body>
 	<div id="speedInput">
@@ -44,8 +44,17 @@ const char index_html[] PROGMEM = R"rawliteral(
 		<div id="ledDurationDisplay"></div>
 		<div id="ledButton"></div>
 	</div>
+	<div id="parameterPanel">
+		<form id="paramForm">
+			<input id="paramRoll" type="number" min="0" max="1" step="0.001" title="Slowing of the vehicle if no power is applied">
+			<input id="paramDeceleration" type="number" min="0" max="1" step="0.001" title="Deceleration power of the break">
+			<input id="paramAcceleration" type="number" min="0" max="1" step="0.001" title="Acceleration power of the gas pedal">
+			<button type="submit">Change</button>
+		</form>
+	</div>
 	<div id="stopGoButton" class="stop" hidden></div>
 	<span id="versionDisplay"></span>
+	<div id="paramNotification">Parameters have been saved.</div>
 </body>
 
 <script>
@@ -60,6 +69,10 @@ const max = 130;
 var currentSpeed = 0;
 var speedInput = 0.0;
 
+var rollSlow = 0.001;
+var decelerationPower = 0.03;
+var accelerationPower = 0.05;
+
 // This handles the input Slider.
 setupClickEvents();
 
@@ -71,6 +84,26 @@ function setupClickEvents() {
 	document.getElementById("ledButton").addEventListener("touchstart", clickLedButton);
 	document.getElementById("stopGoButton").addEventListener("click", clickStopGoButton);
 	document.getElementById("stopGoButton").addEventListener("touchstart", clickStopGoButton);
+	document.getElementById('paramForm').addEventListener('submit', changeParams);
+}
+
+loadDefaultParams();
+
+function loadDefaultParams() {
+	document.getElementById("paramRoll").value = rollSlow;
+	document.getElementById("paramDeceleration").value = decelerationPower;
+	document.getElementById("paramAcceleration").value = accelerationPower;
+}
+
+function changeParams(e) {
+	e.preventDefault();
+	rollSlow = document.getElementById("paramRoll").value;
+	decelerationPower = document.getElementById("paramDeceleration").value;
+	accelerationPower = document.getElementById("paramAcceleration").value;
+	// Visual confirmation of save:
+	const notification = document.getElementById("paramNotification");
+	notification.className = "show";
+	setTimeout(function(){ notification.className = notification.className.replace("show", ""); }, 3000);
 }
 
 function handleMouseClick(event) {
@@ -197,23 +230,16 @@ var controller = null;
 window.addEventListener("gamepadconnected", connecthandler);
 
 function connecthandler(e) {
+	// Show parameter panel when controller is connected:
+	document.getElementById("parameterPanel").style.visibility = "visible";
   	addgamepad(e.gamepad);
 }
 
 function addgamepad(gamepad) {
-	// if (gamepad.mapping != "standard") {
-	// 	console.warn("New gamepad:", gamepad);
-	// 	window.alert(`Gamepad mapping is ${gamepad.mapping} instead of "standard". This is currently not supported`);
-	// 	return;
-	// }
 	controller = gamepad;
 	console.log("New gamepad connected:", gamepad);
 	requestAnimationFrame(updateStatus);
 }
-
-const rollSlow = 0.001;
-const breakingPower = 0.03;
-const gasPower = 0.05;
 
 function updateStatus() {
 	if (!haveEvents) {
@@ -228,9 +254,9 @@ function updateStatus() {
 
 	if (breakButtonInput.pressed) { // active breaking
 		const decleration = breakButtonInput.value;
-		handleUserInput(speedInput - decleration * breakingPower);
+		handleUserInput(speedInput - decleration * decelerationPower);
 	} else if (speedButtonInput.pressed && (speedInput < speedButtonInput.value)) { // active powering
-		handleUserInput(speedInput + (speedButtonInput.value - speedInput) * gasPower);
+		handleUserInput(speedInput + (speedButtonInput.value - speedInput) * accelerationPower);
 	} else { // decelerate slowly
 		handleUserInput(speedInput  - rollSlow);
 	}
@@ -369,6 +395,52 @@ body {
 	margin: 2px;
 	color: lightgray;
 	opacity: 0.25;
+}
+
+#parameterPanel {
+	visibility: hidden;
+}
+
+#paramNotification {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+}
+
+#paramNotification.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;} 
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;} 
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
 }
 </style>
 </html>
