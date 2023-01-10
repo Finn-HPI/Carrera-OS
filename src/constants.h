@@ -32,7 +32,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="05.01_13:12">
+	<meta name="version" content="10.01_13:00">
 </head>
 <body>
 	<div id="speedInput">
@@ -104,9 +104,6 @@ function clickLedButton(event) {
 	if (event.pointerId && event.pointerId != 1) // Prevent action to execute twice on touch click
 		return;
 	activateLed();
-	const display = document.getElementById("ledDurationDisplay");
-	display.classList.remove("animate");
-	setTimeout(() => {display.classList.add("animate")}, 1);
 }
 
 function clickStopGoButton(event) {
@@ -178,11 +175,63 @@ function updateSpeed(value) {
 function activateLed() {
 	if (!connected) return;
 	websocket.send("L");
+	const display = document.getElementById("ledDurationDisplay");
+	display.classList.remove("animate");
+	setTimeout(() => {display.classList.add("animate")}, 1);
 }
 function sendViaWebsocket(message) {
 	if (!connected) return;
 	console.log("Sending:", message);
 	websocket.send(message);
+}
+
+// Gamepad support:
+const haveEvents = 'ongamepadconnected' in window;
+var controller = null;
+
+window.addEventListener("gamepadconnected", connecthandler);
+
+function connecthandler(e) {
+  	addgamepad(e.gamepad);
+}
+
+function addgamepad(gamepad) {
+	if (gamepad.mapping != "standard") {
+		window.alert(`Gamepad mapping is ${gamepad.mapping} instead of "standard". This is currently not supported`);
+		return;
+	}
+	controller = gamepad;
+	console.log("New gamepad connected:", gamepad);
+	requestAnimationFrame(updateStatus);
+}
+
+function updateStatus() {
+	if (!haveEvents) {
+		scangamepad();
+	}
+	// This would allow for input of multiple controlle
+	const ledButton = controller.buttons[0];
+	if (ledButton.pressed)
+		activateLed();
+	const speedButtonInput = controller.buttons[7];
+	const breakButtonInput = controller.buttons[6];
+	if (speedButtonInput.pressed)
+		handleUserInput(speedButtonInput.value);
+	else
+		handleUserInput(0);
+
+	requestAnimationFrame(updateStatus);
+}
+
+function scangamepad() {
+	const gamepads = navigator.getGamepads();
+	for (const gamepad of gamepads) {
+		if (gamepad) { // Can be null if disconnected during the session
+			if (gamepad.index == controller.index) {
+				controller = gamepad;
+			}
+		}
+  	}
 }
 </script>
 
