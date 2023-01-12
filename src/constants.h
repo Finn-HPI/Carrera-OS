@@ -33,7 +33,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="10.01_16:15">
+	<meta name="version" content="12.01_11:45">
 </head>
 <body>
 	<div id="speedInput">
@@ -50,6 +50,8 @@ const char index_html[] PROGMEM = R"rawliteral(
 			<input id="paramRoll" type="number" min="0" max="1" step="0.001" title="Slowing of the vehicle if no power is applied">
 			<input id="paramDeceleration" type="number" min="0" max="1" step="0.001" title="Deceleration power of the break">
 			<input id="paramAcceleration" type="number" min="0" max="1" step="0.001" title="Acceleration power of the gas pedal">
+			<input id="paramHorizontal" type="checkbox" title="Check if you want to use the JoyCon horizontally">
+			<label for="paramHorizontal">Horizontal JoyCon</label>
 			<button type="submit">Change</button>
 		</form>
 	</div>
@@ -70,9 +72,11 @@ const max = 130;
 var currentSpeed = 0;
 var speedInput = 0.0;
 
+// Gamepad Variables
 var rollSlow = 0.001;
 var decelerationPower = 0.03;
 var accelerationPower = 0.05;
+var horizontalMode = 0; // Set to 1 if you want to use the JoyCon horizontally.
 
 // This handles the input Slider.
 setupClickEvents();
@@ -100,6 +104,9 @@ function loadDefaultParams() {
 	if (localStorage.getItem("accelerationPower"))
 		accelerationPower = localStorage.getItem("accelerationPower");
 	document.getElementById("paramAcceleration").value = accelerationPower;
+	if (localStorage.getItem("horizontalMode"))
+		horizontalMode = parseInt(localStorage.getItem("horizontalMode"));
+	document.getElementById("paramHorizontal").checked = horizontalMode == 1;
 }
 
 function changeParams(e) {
@@ -107,9 +114,11 @@ function changeParams(e) {
 	rollSlow = document.getElementById("paramRoll").value;
 	decelerationPower = document.getElementById("paramDeceleration").value;
 	accelerationPower = document.getElementById("paramAcceleration").value;
+	horizontalMode = document.getElementById("paramHorizontal").checked ? 1 : 0;
 	localStorage.setItem("rollSlow", rollSlow);
 	localStorage.setItem("decelerationPower", decelerationPower);
 	localStorage.setItem("accelerationPower", accelerationPower);
+	localStorage.setItem("horizontalMode", horizontalMode);
 	// Visual confirmation of save:
 	const notification = document.getElementById("paramNotification");
 	notification.className = "show";
@@ -259,19 +268,31 @@ function updateStatus() {
 	const ledButton = controller.buttons[0];
 	if (ledButton.pressed)
 		activateLed();
-	const speedButtonInput = controller.buttons[7];
-	const breakButtonInput = controller.buttons[6];
+	let maxSpeedInput = controller.buttons[7].value;
+	let maxBreakInput = controller.buttons[6].value;
 
-	if (breakButtonInput.pressed) { // active breaking
-		const decleration = breakButtonInput.value;
+	for(let i = 0; i < controller.axes.length; i += 2) {
+		let input = controller.axes[i + horizontalMode];
+		if (horizontalMode)
+			input *= -1;
+		maxSpeedInput = Math.max(maxSpeedInput, input, 0);
+		maxBreakInput = Math.max(maxBreakInput, -Math.min(0, input));
+	}
+
+	handleControllerInput(maxSpeedInput, maxBreakInput);
+
+	requestAnimationFrame(updateStatus);
+}
+
+function handleControllerInput(speedInputValue, breakInputValue) {
+	if (breakInputValue > 0.0) { // active breaking
+		const decleration = breakInputValue;
 		handleUserInput(speedInput - decleration * decelerationPower);
-	} else if (speedButtonInput.pressed && (speedInput < speedButtonInput.value)) { // active powering
-		handleUserInput(speedInput + (speedButtonInput.value - speedInput) * accelerationPower);
+	} else if (speedInputValue > 0.0 && (speedInput < speedInputValue)) { // active powering
+		handleUserInput(speedInput + (speedInputValue - speedInput) * accelerationPower);
 	} else { // decelerate slowly
 		handleUserInput(speedInput  - rollSlow);
 	}
-
-	requestAnimationFrame(updateStatus);
 }
 
 function scangamepad() {
@@ -295,6 +316,7 @@ function scangamepad() {
 }
 body {
 	background: linear-gradient(135deg, #283048, #859398);
+	color: white;
 }
 
 #speedInput {
