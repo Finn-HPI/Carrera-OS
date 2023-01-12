@@ -40,8 +40,7 @@ void CarreraServer::handleCommand(String command) {
             return;
         }
         if (command.startsWith("S")) { // STOP
-            driving::setSpeed(0);
-            notifyClients(0);
+            emergencyStop();
             return;
         }
     }
@@ -54,6 +53,7 @@ void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client
                             void *arg, uint8_t *data, size_t len) {
     switch (type) {
         case WS_EVT_CONNECT:
+            notifyClients(driving::getSpeed());
             break;
         case WS_EVT_DISCONNECT:
             emergencyStop();
@@ -61,7 +61,6 @@ void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client
         case WS_EVT_DATA:
             handleWebSocketMessage(arg, data, len);
             break;
-        case WS_EVT_PONG:
         case WS_EVT_ERROR:
             emergencyStop();
             break;
@@ -99,6 +98,10 @@ void CarreraServer::setup() {
 
 void CarreraServer::emergencyOTA() {
     Serial.begin(115200);
+
+    // Stop the vehicle if driving
+    driving::setSpeed(0);
+    driving::tick();
 
     WiFi.softAP(ssid, password);
     delay(100);
