@@ -1,9 +1,11 @@
 #pragma once
 #include "constants.h"
 namespace driving {
-void setSpeed(int newSpeed);
+int setSpeed(int newSpeed);
 
-// getSpeed is a guess of the real speed we're currently driving
+void boost();
+
+// getSpeed returns the target_speed
 int getSpeed();
 
 void tick(float milliseconds = config->loop_time);

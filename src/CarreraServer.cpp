@@ -30,14 +30,24 @@ void CarreraServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 
 void CarreraServer::handleCommand(String command) {
     // IR-LED Command
-    if (command.length() == 1 && command.startsWith("L")) {
-        enableIRLed();
-        return;
+    if (command.length() == 1) {
+        if (command.startsWith("L")) { // LED
+            enableIRLed();
+            return;
+        }
+        if (command.startsWith("B")) { // BOOST
+            driving::boost();
+            return;
+        }
+        if (command.startsWith("S")) { // STOP
+            driving::setSpeed(0);
+            notifyClients(0);
+            return;
+        }
     }
     // Speed Command
     int speed = command.toInt();
-    driving::setSpeed(speed);
-    notifyClients(speed);
+    notifyClients(driving::setSpeed(speed));
 }
 
 void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,

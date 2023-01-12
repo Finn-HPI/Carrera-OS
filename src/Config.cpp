@@ -9,6 +9,9 @@ Config initialConfig{
     .acceleration = 255 * 4,
     .deceleration = 255,
 
+    .boost_duration = 100,
+    .boost_power = 200,
+
     .irl_time = 2000,
     
     .instant_acceleration = false};

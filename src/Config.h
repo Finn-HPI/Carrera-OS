@@ -9,6 +9,9 @@ struct Config {
     int acceleration;
     int deceleration;
 
+    int boost_duration;
+    int boost_power;
+
     int irl_time;
 
     bool instant_acceleration;

@@ -33,7 +33,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="12.01_11:45">
+	<meta name="version" content="12.01_12:37">
 </head>
 <body>
 	<div id="speedInput">
@@ -55,7 +55,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 			<button type="submit">Change</button>
 		</form>
 	</div>
-	<div id="stopGoButton" class="stop" hidden></div>
+	<div id="stopButton" class="stop"></div>
 	<span id="versionDisplay"></span>
 	<div id="paramNotification">Parameters have been saved.</div>
 </body>
@@ -87,8 +87,8 @@ function setupClickEvents() {
 	document.getElementById("speedInput").addEventListener("touchmove", handleTouchEvent);
 	document.getElementById("ledButton").addEventListener("click", clickLedButton);
 	document.getElementById("ledButton").addEventListener("touchstart", clickLedButton);
-	document.getElementById("stopGoButton").addEventListener("click", clickStopGoButton);
-	document.getElementById("stopGoButton").addEventListener("touchstart", clickStopGoButton);
+	document.getElementById("stopButton").addEventListener("click", clickStopButton);
+	document.getElementById("stopButton").addEventListener("touchstart", clickStopButton);
 	document.getElementById('paramForm').addEventListener('submit', changeParams);
 }
 
@@ -163,10 +163,10 @@ function clickLedButton(event) {
 	activateLed();
 }
 
-function clickStopGoButton(event) {
+function clickStopButton(event) {
 	if (event.pointerId && event.pointerId != 1) // Prevent action to execute twice on touch click
 		return;
-	console.log("Do something");
+	emergencyStop();
 }
 
 function updateSpeedInputDisplay() {
@@ -231,10 +231,16 @@ function updateSpeed(value) {
 }
 function activateLed() {
 	if (!connected) return;
-	websocket.send("L");
+	sendViaWebsocket("L");
 	const display = document.getElementById("ledDurationDisplay");
 	display.classList.remove("animate");
 	setTimeout(() => {display.classList.add("animate")}, 1);
+}
+function boost() {
+	sendViaWebsocket("B");
+}
+function emergencyStop() {
+	sendViaWebsocket("S");
 }
 function sendViaWebsocket(message) {
 	if (!connected) return;
@@ -268,6 +274,12 @@ function updateStatus() {
 	const ledButton = controller.buttons[0];
 	if (ledButton.pressed)
 		activateLed();
+	const boostButton = controller.buttons[8];
+	if (boostButton.pressed)
+		boost();
+	const stopButton = controller.buttons[16];
+	if (stopButton.pressed)
+		emergencyStop();
 	let maxSpeedInput = controller.buttons[7].value;
 	let maxBreakInput = controller.buttons[6].value;
 
@@ -403,7 +415,7 @@ body {
 	}
 }
 
-#stopGoButton {
+#stopButton {
 	position: absolute;
 	top: 0px;
 	right: 0px;

@@ -2,6 +2,7 @@
 
 float target_speed = 0;
 float real_speed = 0;
+float boost_activation_time = 0;
 
 void decelerate(uint32_t duty) {
     ledcWrite(MOTOR_PWM_CHANNEL, 0);
@@ -16,6 +17,10 @@ void accelerate(uint32_t duty) {
 }
 
 void driving::tick(float milliseconds) {
+    if (millis() - boost_activation_time < config->boost_duration) {
+        accelerate(config->boost_power);
+        return;
+    }
     if (!config->instant_acceleration) {
         accelerate(target_speed);
         return;
@@ -37,13 +42,19 @@ void driving::tick(float milliseconds) {
     }
 }
 
-void driving::setSpeed(int new_speed) {
+void driving::boost() {
+    boost_activation_time = millis();
+    accelerate(config->boost_power);
+}
+
+int driving::setSpeed(int new_speed) {
     // If the speed get's too low, the motor will block and potentially burn out.
     // Therefore, just completely stop the motor in this case.
     if (new_speed < config->min_speed) {
         new_speed = 0;
     }
     target_speed = new_speed;
+    return target_speed;
 }
 
 int driving::getSpeed() {
