@@ -47,6 +47,7 @@ var rollSlow = 0.001;
 var decelerationPower = 0.03;
 var accelerationPower = 0.05;
 var horizontalMode = 0; // Set to 1 if you want to use the JoyCon horizontally.
+var isLeftJoycon = false;
 
 // This handles the input Slider.
 setupClickEvents();
@@ -247,15 +248,22 @@ function updateStatus() {
 	const boostButton = controller.buttons[8];
 	if (boostButton.pressed)
 		boost();
-	const stopButton = controller.buttons[16];
-	if (stopButton.pressed)
-		emergencyStop();
+	if (controller.buttons.length >= 16) {
+		const stopButton = controller.buttons[16];
+		if (stopButton.pressed)
+			emergencyStop();
+	}
 	let maxSpeedInput = controller.buttons[7].value;
-	let maxBreakInput = controller.buttons[6].value;
+	let maxBreakInput = 0.0;
+	if (isLeftJoycon) {
+		maxSpeedInput = Math.max(maxSpeedInput, controller.buttons[6].value);
+	} else {
+		maxBreakInput = controller.buttons[6].value;
+	}
 
 	for(let i = 0; i < controller.axes.length; i += 2) {
 		let input = controller.axes[i + horizontalMode];
-		if (horizontalMode)
+		if (horizontalMode || isLeftJoycon) // Since left joycon is inverted
 			input *= -1;
 		maxSpeedInput = Math.max(maxSpeedInput, input, 0);
 		maxBreakInput = Math.max(maxBreakInput, -Math.min(0, input));
