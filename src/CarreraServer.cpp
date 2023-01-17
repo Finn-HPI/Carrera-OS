@@ -13,7 +13,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer() : m_server{80}, socket("/ws"), ssid{"Carrera-CarX"}, password{"CarreraMachtSpass"}, ota_mode{false}, irl_enabled{false} {}
+CarreraServer::CarreraServer() : m_server{80}, socket("/ws"), ssid{"Carrera-Car1"}, password{"CarreraMachtSpass"}, ota_mode{false}, irl_enabled{false}, clients{0} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
     socket.textAll(String(newSpeed));
@@ -188,6 +188,14 @@ void CarreraServer::updateIRLed() {
 }
 
 void CarreraServer::loop() {
+    int currentClients = WiFi.softAPgetStationNum();
+    if (clients < currentClients) { // new connection
+        ledcWrite(SLED_PWM_CHANNEL, 40);
+    } else if (clients > currentClients && currentClients == 0) { // connection lost
+        emergencyStop();
+        ledcWrite(SLED_PWM_CHANNEL, 255);
+    }
+    clients = currentClients;
     if (ota_mode) emergencyOTA();
     if (irl_enabled) updateIRLed();
 }
