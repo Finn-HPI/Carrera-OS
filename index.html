@@ -15,17 +15,24 @@
 		<div id="ledDurationDisplay"></div>
 		<div id="ledButton"></div>
 	</div>
-	<div id="parameterPanel">
+	<div id="parameterPanel" class="closed">
+		<button id="parameterPanelToggle" onclick="toggleParameterPanel()"></button>
 		<form id="paramForm">
 			<input id="paramRoll" type="number" min="0" max="1" step="0.001" title="Slowing of the vehicle if no power is applied">
 			<input id="paramDeceleration" type="number" min="0" max="1" step="0.001" title="Deceleration power of the break">
 			<input id="paramAcceleration" type="number" min="0" max="1" step="0.001" title="Acceleration power of the gas pedal">
-			<input id="paramHorizontal" type="checkbox" title="Check if you want to use the JoyCon horizontally">
-			<label for="paramHorizontal">Horizontal JoyCon</label>
-			<button type="submit">Change</button>
+			<span title="Check if you want to use the JoyCon horizontally">
+				<input id="paramHorizontal" type="checkbox">
+				<label for="paramHorizontal">Horizontal JoyCon</label>
+			</span>
+			<span title="Check if you have the left Joycon in use">
+				<input id="paramLeftJoycon" type="checkbox">
+				<label for="paramLeftJoycon">Left JoyCon</label>
+			</span>
+			<button type="submit">Apply</button>
 		</form>
 	</div>
-	<div id="stopButton" class="stop"></div>
+	<div id="stopButton" class="stop" hidden></div>
 	<span id="versionDisplay"></span>
 	<div id="paramNotification">Parameters have been saved.</div>
 </body>
@@ -86,6 +93,9 @@ function loadDefaultParams() {
 	if (localStorage.getItem("horizontalMode"))
 		horizontalMode = parseInt(localStorage.getItem("horizontalMode"));
 	document.getElementById("paramHorizontal").checked = horizontalMode == 1;
+	if (localStorage.getItem("isLeftJoycon"))
+		isLeftJoycon = localStorage.getItem("isLeftJoycon");
+	document.getElementById("paramLeftJoycon").checked = isLeftJoycon;
 }
 
 function changeParams(e) {
@@ -94,14 +104,30 @@ function changeParams(e) {
 	decelerationPower = document.getElementById("paramDeceleration").value;
 	accelerationPower = document.getElementById("paramAcceleration").value;
 	horizontalMode = document.getElementById("paramHorizontal").checked ? 1 : 0;
+	isLeftJoycon = document.getElementById("paramLeftJoycon").checked;
 	localStorage.setItem("rollSlow", rollSlow);
 	localStorage.setItem("decelerationPower", decelerationPower);
 	localStorage.setItem("accelerationPower", accelerationPower);
 	localStorage.setItem("horizontalMode", horizontalMode);
+	localStorage.setItem("isLeftJoycon", isLeftJoycon);
 	// Visual confirmation of save:
 	const notification = document.getElementById("paramNotification");
 	notification.className = "show";
 	setTimeout(function(){ notification.className = notification.className.replace("show", ""); }, 3000);
+}
+
+function toggleParameterPanel() {
+	const panel = document.getElementById("parameterPanel");
+	const toggle = document.getElementById("parameterPanelToggle");
+	if (panel.classList.contains("closed")) {
+		panel.classList.replace("closed", "opened");
+		toggle.innerHTML = "<";
+		toggle.title = "Hide parameter panel";
+	} else {
+		panel.classList.replace("opened", "closed");
+		toggle.innerHTML = ">";
+		toggle.title = "Show parameter panel";
+	}
 }
 
 function handleMouseClick(event) {
@@ -247,6 +273,7 @@ window.addEventListener("gamepadconnected", connecthandler);
 
 function connecthandler(e) {
 	// Show parameter panel when controller is connected:
+	toggleParameterPanel();
 	document.getElementById("parameterPanel").style.visibility = "visible";
   	addgamepad(e.gamepad);
 }
@@ -445,6 +472,18 @@ body {
 	visibility: hidden;
 }
 
+#parameterPanel.closed form {
+	visibility: hidden;
+}
+
+#parameterPanel.opened form {
+	visibility: visible;
+}
+
+#parameterPanel form {
+	display: inline;
+}
+
 #paramNotification {
   visibility: hidden;
   min-width: 250px;
@@ -465,6 +504,11 @@ body {
   visibility: visible;
   -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
   animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+button {
+	border-radius: 5px;
+	border-style: none;
 }
 
 @-webkit-keyframes fadein {
