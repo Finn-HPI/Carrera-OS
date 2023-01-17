@@ -17,6 +17,7 @@ class CarreraServer {
     bool ota_mode;
     bool irl_enabled;
     unsigned long irl_toggle_time;
+    int clients;
 
    public:
     CarreraServer();
