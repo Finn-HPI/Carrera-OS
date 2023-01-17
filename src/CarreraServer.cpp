@@ -13,7 +13,7 @@
 
 using namespace std::placeholders;
 
-CarreraServer::CarreraServer() : m_server{80}, socket("/ws"), ssid{"Carrera-Car1"}, password{"CarreraMachtSpass"}, ota_mode{false}, irl_enabled{false} {}
+CarreraServer::CarreraServer() : m_server{80}, socket("/ws"), ssid{"Carrera-CarX"}, password{"CarreraMachtSpass"}, ota_mode{false}, irl_enabled{false} {}
 
 void CarreraServer::notifyClients(int newSpeed) {
     socket.textAll(String(newSpeed));
@@ -77,8 +77,17 @@ void CarreraServer::initWebSocket() {
     m_server.addHandler(&socket);
 }
 
+void CarreraServer::setCredentials(String ssid, String password) {
+    preferences.putString("ssid", ssid);
+    preferences.putString("password", password);
+}
+
 void CarreraServer::setup() {
-    WiFi.softAP(ssid, password);
+    preferences.begin("credentials", false);
+    ssid = preferences.getString("ssid", ssid); 
+    password = preferences.getString("password", password);
+
+    WiFi.softAP(ssid.c_str(), password.c_str());
 
     initWebSocket();
 
@@ -92,6 +101,24 @@ void CarreraServer::setup() {
     m_server.on("/uptime", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(200, "text/plain", String(millis()));
     });
+
+    m_server.on("/nvs_reset", HTTP_GET, [](AsyncWebServerRequest *request) {
+        nvs_flash_erase(); 
+        nvs_flash_init();
+        request->send(200, "text/plain", String("nvs resetted"));
+    });
+
+    m_server.on("/cred", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->send(200, "application/json", "{ \"ssid\" : \"" + preferences.getString("ssid", "") + "\", \"password\": \"" + preferences.getString("password", "") + "\"}");
+    });
+
+    m_server.on("/set_cred", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        AsyncWebParameter* ssid = request->getParam(0);
+        AsyncWebParameter* pwd = request->getParam(1);
+        setCredentials(ssid->value(), pwd->value());
+        request->send(200, "application/json", "{ \"ssid\" : \"" + preferences.getString("ssid", "") + "\", \"password\": \"" + preferences.getString("password", "") + "\"}");
+    });
+
 
     m_server.begin();
 }
