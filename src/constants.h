@@ -33,7 +33,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="17.01_15:45">
+	<meta name="version" content="17.01_15:55">
 </head>
 <body>
 	<div id="speedInput">
@@ -292,7 +292,8 @@ function sendViaWebsocket(message) {
 	if (!connected || lastMessageSent == message) return;
 	console.log("Sending:", message);
 	websocket.send(message);
-	lastMessageSent = message; // Prevent the system from sending the same message several times
+	if (message != "S")
+		lastMessageSent = message; // Prevent the system from sending the same message several times
 }
 
 // Gamepad support:

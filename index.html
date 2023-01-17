@@ -262,7 +262,8 @@ function sendViaWebsocket(message) {
 	if (!connected || lastMessageSent == message) return;
 	console.log("Sending:", message);
 	websocket.send(message);
-	lastMessageSent = message; // Prevent the system from sending the same message several times
+	if (message != "S")
+		lastMessageSent = message; // Prevent the system from sending the same message several times
 }
 
 // Gamepad support:
