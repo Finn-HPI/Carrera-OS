@@ -130,7 +130,7 @@ void CarreraServer::emergencyOTA() {
     driving::setSpeed(0);
     driving::tick();
 
-    WiFi.softAP(ssid, password);
+    WiFi.softAP(ssid.c_str(), password.c_str());
     delay(100);
 
     ArduinoOTA.setHostname("Carrera-Vehicle");
