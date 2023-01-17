@@ -33,7 +33,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="12.01_12:37">
+	<meta name="version" content="17.01_13:30">
 </head>
 <body>
 	<div id="speedInput">
@@ -77,6 +77,15 @@ var rollSlow = 0.001;
 var decelerationPower = 0.03;
 var accelerationPower = 0.05;
 var horizontalMode = 0; // Set to 1 if you want to use the JoyCon horizontally.
+var isLeftJoycon = false;
+const buttonMap = new Map([
+  [0, {"function": activateLed}],
+  [8, {"function": boost}],
+  [16, {"function": emergencyStop}],
+]);
+
+// Websocket overload protection
+var lastMessageSent = null;
 
 // This handles the input Slider.
 setupClickEvents();
@@ -199,7 +208,9 @@ function absoluteToPctSpeed(absoluteValue) {
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
 var connected = false;
+
 window.addEventListener("load", onLoad);
+
 function initWebSocket() {
 	console.log("Trying to open a WebSocket connection...");
 	websocket = new WebSocket(gateway);
@@ -207,28 +218,34 @@ function initWebSocket() {
 	websocket.onclose = onClose;
 	websocket.onmessage = onMessage;
 }
+
 function onOpen(event) {
 	connected = true;
 	document.getElementById("speedInput").classList.add("connected");
 	console.log("Connection opened");
 }
+
 function onClose(event) {
 	connected = false;
 	document.getElementById("speedInput").classList.remove("connected");
 	console.log("Connection closed");
 	setTimeout(initWebSocket, 2000);
 }
+
 function onMessage(event) {
 	console.log("Recieving: ", event);
 	currentSpeed = event.data;
 	updateSpeedInputDisplay();
 }
+
 function onLoad(event) {
 	initWebSocket();
 }
+
 function updateSpeed(value) {
 	sendViaWebsocket(value.toString());
 }
+
 function activateLed() {
 	if (!connected) return;
 	sendViaWebsocket("L");
@@ -236,16 +253,20 @@ function activateLed() {
 	display.classList.remove("animate");
 	setTimeout(() => {display.classList.add("animate")}, 1);
 }
+
 function boost() {
 	sendViaWebsocket("B");
 }
+
 function emergencyStop() {
 	sendViaWebsocket("S");
 }
+
 function sendViaWebsocket(message) {
-	if (!connected) return;
+	if (!connected || lastMessageSent == message) return;
 	console.log("Sending:", message);
 	websocket.send(message);
+	lastMessageSent = message; // Prevent the system from sending the same message several times
 }
 
 // Gamepad support:
@@ -263,37 +284,46 @@ function connecthandler(e) {
 function addgamepad(gamepad) {
 	controller = gamepad;
 	console.log("New gamepad connected:", gamepad);
-	requestAnimationFrame(updateStatus);
+	requestAnimationFrame(updateStatus); // Activate recursive call for updates
 }
 
 function updateStatus() {
 	if (!haveEvents) {
 		scangamepad();
 	}
-	// This would allow for input of multiple controlle
-	const ledButton = controller.buttons[0];
-	if (ledButton.pressed)
-		activateLed();
-	const boostButton = controller.buttons[8];
-	if (boostButton.pressed)
-		boost();
-	const stopButton = controller.buttons[16];
-	if (stopButton.pressed)
-		emergencyStop();
+	handlePressedButtons();
+	handleJoystickInput();
+
+	requestAnimationFrame(updateStatus); // Basically a recursive call of this function
+}
+
+function handlePressedButtons() {
+	buttonMap.forEach((value, key) => {
+		if (controller.buttons.length < key)
+			return;
+		if (controller.buttons[key].pressed)
+			value.function();
+	});
+}
+
+function handleJoystickInput() {
 	let maxSpeedInput = controller.buttons[7].value;
-	let maxBreakInput = controller.buttons[6].value;
+	let maxBreakInput = 0.0;
+	if (isLeftJoycon) {
+		maxSpeedInput = Math.max(maxSpeedInput, controller.buttons[6].value);
+	} else {
+		maxBreakInput = controller.buttons[6].value;
+	}
 
 	for(let i = 0; i < controller.axes.length; i += 2) {
 		let input = controller.axes[i + horizontalMode];
-		if (horizontalMode)
+		if (horizontalMode || isLeftJoycon) // Since left joycon is inverted
 			input *= -1;
 		maxSpeedInput = Math.max(maxSpeedInput, input, 0);
 		maxBreakInput = Math.max(maxBreakInput, -Math.min(0, input));
 	}
 
 	handleControllerInput(maxSpeedInput, maxBreakInput);
-
-	requestAnimationFrame(updateStatus);
 }
 
 function handleControllerInput(speedInputValue, breakInputValue) {
