@@ -6,15 +6,35 @@ In this project we want to develop custom controls for a Carrera slotcar. We acc
 
 Further, we want to add a camera to the vehicle to see a live videofeed from the cockpit to enable first person driving.
 
-## Hardware
-
-ESP Lipo Dev-Kit: https://www.olimex.com/Products/IoT/ESP32/ESP32-DevKit-LiPo/open-source-hardware (9.95€)
-
 ## Web-Interface
 
 After copying the HTML code from the `index.html` file into the `constants.h` file you need to replace all `%` characters with `%%` in order to escape them. Otherwise the web interface will not work.
 
 You should also adapt the version metatag in the header to verify that the chip boots with the correct version (see OTA Issues).
+
+## Protocol
+
+### HTTP Endpoints
+
+`192.168.4.1/` will open the frontend for controlling the vehicle.
+
+`192.168.4.1/OTA` will enable OTA flashing of the board.
+
+`192.168.4.1/set_cred?ssid=<NewSSID>&pwd=<NewPassword>` is used for changing the ESPs WiFi-Name and Password. **IMPORTANT:** The password needs to be at least 8 characters long.
+
+`192.168.4.1/cred` will return the current WiFi SSID and password.
+
+There are further endpoints for debugging such as `/runtime` or `/nvs_reset`.
+
+### WS Messages
+
+`<number>` will set the speed to the provided number. This will be clamped by `config->min` and `config->max`.
+
+`L` will enable the LED on the car (currently this doesn't work for changing lanes)
+
+`B` will boost the vehicle for a short amount of time.
+
+`S` acts as an emergency stop and will set the speed to `0`.
 
 ## Known Issues
 
