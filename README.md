@@ -36,6 +36,23 @@ There are further endpoints for debugging such as `/runtime` or `/nvs_reset`.
 
 `S` acts as an emergency stop and will set the speed to `0`.
 
+## IR LED
+
+For changing the lanes it is required to have a controller that is connected to the track control unit and has the `Action-Button` pressed. According to the connected pin of that controller, the frequency of the IR Led of the vehicle has to be configured in the `constants.h` file in the `IRLED_FREQUENCY` constant.
+
+| Vehicle |Frequency |
+|---------|----------|
+|    1    |  15600   |
+|    2    |   7810   |
+|    3    |   5210   |
+|    4    |   3910   |
+|    5    |   3120   |
+|    6    |   2600   |
+|Ghostcar |   2230   |
+| Pacecar |   1950   |
+
+[Source](https://redlichelectronics.de/ir-diode.html)
+
 ## Known Issues
 
 ### OTA Issues
