@@ -25,6 +25,8 @@ using namespace std;
 #define SLED_PWM_CHANNEL 2
 #define IRLED_PWM_CHANNEL 3
 
+#define IRLED_FREQUENCY 2600
+
 extern CarreraServer server;
 
 const char index_html[] PROGMEM = R"rawliteral(
@@ -33,7 +35,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="17.01_15:55">
+	<meta name="version" content="26.01_13:00">
 </head>
 <body>
 	<div id="speedInput">
@@ -292,8 +294,8 @@ function sendViaWebsocket(message) {
 	if (!connected || lastMessageSent == message) return;
 	console.log("Sending:", message);
 	websocket.send(message);
-	if (message != "S")
-		lastMessageSent = message; // Prevent the system from sending the same message several times
+	if (!isNaN(message)) // Prevent the system from sending the same speed message several times
+		lastMessageSent = message;
 }
 
 // Gamepad support:
@@ -461,7 +463,7 @@ body {
 #ledDurationDisplay.animate {
 	animation-name: durationDisplay;
 	animation-timing-function: linear;
-	animation-duration: 2s;
+	animation-duration: 1s;
 }
 /* This moves the display for the duration of the led */
 @keyframes durationDisplay {

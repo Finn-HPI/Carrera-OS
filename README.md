@@ -30,7 +30,7 @@ There are further endpoints for debugging such as `/runtime` or `/nvs_reset`.
 
 `<number>` will set the speed to the provided number. This will be clamped by `config->min` and `config->max`.
 
-`L` will enable the LED on the car (currently this doesn't work for changing lanes)
+`L` will enable the LED on the car. The duration is set in the config of the vehicle, however if you want to change this remember to change the `animation-duration` in the frontend as well.
 
 `B` will boost the vehicle for a short amount of time.
 

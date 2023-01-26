@@ -12,7 +12,7 @@ Config initialConfig{
     .boost_duration = 100,
     .boost_power = 200,
 
-    .irl_time = 2000,
+    .irl_time = 1000,
     
     .instant_acceleration = false};
 

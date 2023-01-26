@@ -184,9 +184,9 @@ void CarreraServer::emergencyOTA() {
 }
 
 void CarreraServer::enableIRLed() {
-    irl_enabled = true;
+    ledcWrite(IRLED_PWM_CHANNEL, 128); // 128 is required for the correct frequency
     irl_toggle_time = millis();
-    ledcWrite(IRLED_PWM_CHANNEL, 255);
+    irl_enabled = true;
 }
 
 void CarreraServer::updateIRLed() {

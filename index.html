@@ -262,8 +262,8 @@ function sendViaWebsocket(message) {
 	if (!connected || lastMessageSent == message) return;
 	console.log("Sending:", message);
 	websocket.send(message);
-	if (message != "S")
-		lastMessageSent = message; // Prevent the system from sending the same message several times
+	if (!isNaN(message)) // Prevent the system from sending the same speed message several times
+		lastMessageSent = message;
 }
 
 // Gamepad support:
@@ -431,7 +431,7 @@ body {
 #ledDurationDisplay.animate {
 	animation-name: durationDisplay;
 	animation-timing-function: linear;
-	animation-duration: 2s;
+	animation-duration: 1s;
 }
 /* This moves the display for the duration of the led */
 @keyframes durationDisplay {
