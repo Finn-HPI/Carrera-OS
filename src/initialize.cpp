@@ -32,12 +32,17 @@ void initialize::io() {
     ledcAttachPin(SLED_PIN, SLED_PWM_CHANNEL);
     ledcWrite(SLED_PWM_CHANNEL, 0);
 
-    ledcSetup(IRLED_PWM_CHANNEL, 3910 /*Hz*/, /*resolution (bit)*/ 8);
-    ledcAttachPin(IRLED_PIN, IRLED_PWM_CHANNEL);
-    ledcWrite(IRLED_PWM_CHANNEL, 0);
+    init_irled(3910);
 
     pinMode(TRK_PIN, INPUT);
     pinMode(ADC_PIN, INPUT);
+}
+
+// DEBUG: For the IR LED
+void initialize::init_irled(int frequency) {
+    ledcSetup(IRLED_PWM_CHANNEL, frequency /*Hz*/, /*resolution (bit)*/ 8);
+    ledcAttachPin(IRLED_PIN, IRLED_PWM_CHANNEL);
+    ledcWrite(IRLED_PWM_CHANNEL, 255);
 }
 
 void initialize::power() {

@@ -10,6 +10,7 @@
 #include "Config.h"
 #include "constants.h"
 #include "driving.h"
+#include "initialize.h" // DEBUG: For the IR LED
 
 using namespace std::placeholders;
 
@@ -64,6 +65,8 @@ void CarreraServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client
         case WS_EVT_ERROR:
             emergencyStop();
             break;
+        case WS_EVT_PONG:
+            break;
     }
 }
 
@@ -117,6 +120,13 @@ void CarreraServer::setup() {
         AsyncWebParameter* pwd = request->getParam(1);
         setCredentials(ssid->value(), pwd->value());
         request->send(200, "application/json", "{ \"ssid\" : \"" + preferences.getString("ssid", "") + "\", \"password\": \"" + preferences.getString("password", "") + "\"}");
+    });
+
+    // DEBUG: For the IR LED
+    m_server.on("/led_frequency", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        AsyncWebParameter* frequency = request->getParam(0);
+        initialize::init_irled(frequency->value().toInt());
+        request->send(200, "application/json", "{ \"frequency\" : " + frequency->value() + "}");
     });
 
     m_server.begin();
