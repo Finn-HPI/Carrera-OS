@@ -31,9 +31,7 @@ void initialize::io() {
     ledcSetup(SLED_PWM_CHANNEL, 25000 /*Hz*/, /*resolution (bit)*/ 8);
     ledcAttachPin(SLED_PIN, SLED_PWM_CHANNEL);
     ledcWrite(SLED_PWM_CHANNEL, 0);
-
-    init_irled(IRLED_FREQUENCY);
-
+    
     pinMode(TRK_PIN, INPUT);
     pinMode(ADC_PIN, INPUT);
 }

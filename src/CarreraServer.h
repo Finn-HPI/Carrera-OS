@@ -34,6 +34,7 @@ class CarreraServer {
     void handleCommand(String payload);
     void notifyClients(int newSpeed);
     void setCredentials(String ssid, String password);
+    void updateFrequency(int frequency);
     void emergencyStop();
     void emergencyOTA();
     void enableIRLed();
