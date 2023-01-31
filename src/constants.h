@@ -35,7 +35,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="26.01_13:00">
+	<meta name="version" content="31.01_14:45">
 </head>
 <body>
 	<div id="speedInput">
@@ -89,6 +89,7 @@ var horizontalMode = 0; // Set to 1 if you want to use the JoyCon horizontally.
 var isLeftJoycon = false;
 const buttonMap = new Map([
   [0, {"function": activateLed}],
+  [5, {"function": boost}],
   [8, {"function": boost}],
   [16, {"function": emergencyStop}],
 ]);
