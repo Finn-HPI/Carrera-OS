@@ -5,6 +5,7 @@ struct Config {
     int min_speed;
 
     int loop_time;
+    int frequency;
 
     int acceleration;
     int deceleration;

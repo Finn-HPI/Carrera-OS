@@ -25,8 +25,6 @@ using namespace std;
 #define SLED_PWM_CHANNEL 2
 #define IRLED_PWM_CHANNEL 3
 
-#define IRLED_FREQUENCY 2600
-
 extern CarreraServer server;
 
 const char index_html[] PROGMEM = R"rawliteral(
