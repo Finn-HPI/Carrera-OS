@@ -35,7 +35,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 	<meta charset="utf-8">
 	<title>Carrera 2.0</title>
-	<meta name="version" content="31.01_14:45">
+	<meta name="version" content="08.02_10:00">
 </head>
 <body>
 	<div id="speedInput">
@@ -86,7 +86,7 @@ var rollSlow = 0.001;
 var decelerationPower = 0.03;
 var accelerationPower = 0.05;
 var horizontalMode = 0; // Set to 1 if you want to use the JoyCon horizontally.
-var isLeftJoycon = false;
+var isLeftJoycon = 0; // Instead of true and false we use 0 and 1 (because of localStorage)
 const buttonMap = new Map([
   [0, {"function": activateLed}],
   [5, {"function": boost}],
@@ -127,8 +127,8 @@ function loadDefaultParams() {
 		horizontalMode = parseInt(localStorage.getItem("horizontalMode"));
 	document.getElementById("paramHorizontal").checked = horizontalMode == 1;
 	if (localStorage.getItem("isLeftJoycon"))
-		isLeftJoycon = localStorage.getItem("isLeftJoycon");
-	document.getElementById("paramLeftJoycon").checked = isLeftJoycon;
+		isLeftJoycon = parseInt(localStorage.getItem("isLeftJoycon"));
+	document.getElementById("paramLeftJoycon").checked = isLeftJoycon == 1;
 }
 
 function changeParams(e) {
@@ -137,7 +137,7 @@ function changeParams(e) {
 	decelerationPower = document.getElementById("paramDeceleration").value;
 	accelerationPower = document.getElementById("paramAcceleration").value;
 	horizontalMode = document.getElementById("paramHorizontal").checked ? 1 : 0;
-	isLeftJoycon = document.getElementById("paramLeftJoycon").checked;
+	isLeftJoycon = document.getElementById("paramLeftJoycon").checked ? 1 : 0;
 	localStorage.setItem("rollSlow", rollSlow);
 	localStorage.setItem("decelerationPower", decelerationPower);
 	localStorage.setItem("accelerationPower", accelerationPower);

@@ -85,5 +85,5 @@ HBridge 48.5 - 64 °C
 
 ## TODO
 
-1. Left Joycon fix
+1. WiFi SSID and Password reset?
 2. Guide für Erstnutzung
