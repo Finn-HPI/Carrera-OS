@@ -5,7 +5,6 @@ Config initialConfig{
     .min_speed = 10,
 
     .loop_time = 6,
-    .frequency = 2600, // Car 6
 
     .acceleration = 255 * 4,
     .deceleration = 255,

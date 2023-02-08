@@ -38,7 +38,7 @@ There are further endpoints for debugging such as `/runtime` or `/nvs_reset`.
 
 ## IR LED
 
-For changing the lanes it is required to have a controller that is connected to the track control unit and has the `Action-Button` pressed. According to the connected pin of that controller, the frequency of the IR Led of the vehicle has to be configured in the `constants.h` file in the `IRLED_FREQUENCY` constant.
+The car uses the Ghostcar frequency which allows it to change lanes by simply turning on the IR-Led with the corresponding frequency.
 
 | Vehicle |Frequency |
 |---------|----------|
@@ -82,3 +82,8 @@ HBridge 46.6 - 63 °C
 ESP ~30 °C
 Capacitor (Top) 45-46 °C
 HBridge 48.5 - 64 °C
+
+## TODO
+
+1. Left Joycon fix
+2. Guide für Erstnutzung

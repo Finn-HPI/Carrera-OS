@@ -85,18 +85,10 @@ void CarreraServer::setCredentials(String ssid, String password) {
     preferences.putString("password", password);
 }
 
-void CarreraServer::updateFrequency(int frequency) {
-    preferences.putInt("frequency", frequency);
-    initialize::init_irled(frequency);
-}
-
 void CarreraServer::setup() {
     preferences.begin("credentials", false);
     ssid = preferences.getString("ssid", ssid); 
     password = preferences.getString("password", password);
-
-    config->frequency = preferences.getInt("frequency", config->frequency);
-    initialize::init_irled(config->frequency);
 
     WiFi.softAP(ssid.c_str(), password.c_str());
 
@@ -128,13 +120,6 @@ void CarreraServer::setup() {
         AsyncWebParameter* pwd = request->getParam(1);
         setCredentials(ssid->value(), pwd->value());
         request->send(200, "application/json", "{ \"ssid\" : \"" + preferences.getString("ssid", "") + "\", \"password\": \"" + preferences.getString("password", "") + "\"}");
-    });
-
-    // DEBUG: For the IR LED
-    m_server.on("/led_frequency", HTTP_GET, [&](AsyncWebServerRequest *request) {
-        int frequency = request->getParam(0)->value().toInt();
-        updateFrequency(frequency);
-        request->send(200, "application/json", "{ \"frequency\" : " + String(frequency) + "}");
     });
 
     m_server.begin();
