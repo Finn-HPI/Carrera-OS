@@ -87,3 +87,25 @@ HBridge 48.5 - 64 °C
 
 1. WiFi SSID and Password reset?
 2. Guide für Erstnutzung
+
+# Usage
+
+## Step 1: Place slotcar on track
+
+Place the slotcar on the track. Be careful: Due to the hardware, the motor will accelerate for a second so make sure to raise the back of the car while placing it down.
+
+## Step 2: Connect WiFi
+
+Connect to the WiFi that was created by the slotcar. The WiFi should be named either `Carrera-Car 1` or `Carrera-Car 2` and the password should be `<INSERT DEFAULT PASSWORD HERE>`.
+
+## Step 3: Open controlpage
+
+Visit `192.168.4.1` in your webbrowser. You should see the Frontend with a large slider to control the speed and a blue button that is used for changing lanes.
+
+## Step 4: Drive!
+
+You can now control your car with the slider to set the velocity of the car and change lanes by clicking the blue button.
+
+## 4.1 Controllers
+
+You can also connect a Bluetooth or wired Gamecontroller to your device to control the vehicle. When connected, click a button on your controller and the parameterpanel should open on the frontend. There you can configure three different parameters regarding neutral mode (decrease of speed if no other input is given), breaking power and acceleration power. Here you can also configure settings for Joystick controls (like inverting the axis) and adapt the controls if you are using a left Joycon (without checking this, the left Joycon behaves different and not that smoothly).
