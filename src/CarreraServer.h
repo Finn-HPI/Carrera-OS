@@ -36,7 +36,7 @@ class CarreraServer {
     void setCredentials(String ssid, String password);
     void updateFrequency(int frequency);
     void emergencyStop();
-    void emergencyOTA();
+    void activateOTA();
     void enableIRLed();
     void updateIRLed();
     void loop();

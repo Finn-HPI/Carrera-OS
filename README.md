@@ -67,26 +67,6 @@ If OTA repeatably fails, use UART bridge for flashing. After that the OTA should
 ### Slotcar Issues
 
 1. While placing the car on the track the motor gets powered for a second, because its pin is HIGH by default. Make sure to hold the back wheels up while placing the car on the track.
-2. The IR-Led does not work (even though the code is already implemented).
-
-## Temperature Measurements
-
-### Gelbes Auto
-
-ESP ~30 °C
-Capacitor (Top) 45.5 - 50 °C
-HBridge 46.6 - 63 °C
-
-### Weißes Auto
-
-ESP ~30 °C
-Capacitor (Top) 45-46 °C
-HBridge 48.5 - 64 °C
-
-## TODO
-
-1. WiFi SSID and Password reset?
-2. Guide für Erstnutzung
 
 # Usage
 
@@ -96,7 +76,7 @@ Place the slotcar on the track. Be careful: Due to the hardware, the motor will 
 
 ## Step 2: Connect WiFi
 
-Connect to the WiFi that was created by the slotcar. The WiFi should be named either `Carrera-Car 1` or `Carrera-Car 2` and the password should be `<INSERT DEFAULT PASSWORD HERE>`.
+Connect to the WiFi that was created by the slotcar. The WiFi should be named either `Carrera-Car 1` or `Carrera-Car 2` and the password should be `CarreraMachtSpass`.
 
 ## Step 3: Open controlpage
 
@@ -109,3 +89,9 @@ You can now control your car with the slider to set the velocity of the car and 
 ## 4.1 Controllers
 
 You can also connect a Bluetooth or wired Gamecontroller to your device to control the vehicle. When connected, click a button on your controller and the parameterpanel should open on the frontend. There you can configure three different parameters regarding neutral mode (decrease of speed if no other input is given), breaking power and acceleration power. Here you can also configure settings for Joystick controls (like inverting the axis) and adapt the controls if you are using a left Joycon (without checking this, the left Joycon behaves different and not that smoothly).
+
+# Contact us
+
+If you have any questions, feel free to contact us:
+- [Julian Egbert](mailto:Julian.Egbert@student.hpi.de)
+- [Finn Schöllkopf](mailto:Finn.Schoellkopf@student.hpi.de)

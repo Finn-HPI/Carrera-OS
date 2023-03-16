@@ -10,7 +10,6 @@
 #include "Config.h"
 #include "constants.h"
 #include "driving.h"
-#include "initialize.h" // DEBUG: For the IR LED
 
 using namespace std::placeholders;
 
@@ -125,7 +124,7 @@ void CarreraServer::setup() {
     m_server.begin();
 }
 
-void CarreraServer::emergencyOTA() {
+void CarreraServer::activateOTA() {
     Serial.begin(115200);
 
     // Stop the vehicle if driving
@@ -198,6 +197,6 @@ void CarreraServer::loop() {
         ledcWrite(SLED_PWM_CHANNEL, 255);
     }
     clients = currentClients;
-    if (ota_mode) emergencyOTA();
+    if (ota_mode) activateOTA();
     if (irl_enabled) updateIRLed();
 }

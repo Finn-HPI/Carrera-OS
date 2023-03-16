@@ -11,7 +11,7 @@ void initialize::emergencyOTA() {
     delay(100);
 
     if (!digitalRead(BUTTON_PIN)) {
-        server.emergencyOTA();
+        server.activateOTA();
     }
 }
 
